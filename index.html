@@ -692,147 +692,36 @@
 
         // Module: Secure Tokenized Gateway Module Architecture
         const SystemPaymentGateway = {
-            initializePaystackSession(e) {
-                e.preventDefault();
-                const email = document.getElementById("checkoutReceiptEmail").value;
-                if(!email.includes("@")) {
-                    alert("Please provide valid asset allocation node target destination email address.");
-                    return;
-                }
+    initializePaystackSession(e) {
+        
+        e.preventDefault();
+        const email = document.getElementById("checkoutReceiptEmail").value;
+        const totalAmount = parseFloat(document.getElementById("ledgerTotal").innerText.replace('$', ''));
 
-                SystemUXNotifications.push("Contacting transaction gateway authority pipeline...");
-                
-                // Integrated sandboxed secure workflow deployment framework execution simulation hook
-                setTimeout(() => {
-                    state.cart = [];
-                    state.promoApplied = false;
-                    saveStateToStorage();
-                    SystemCartSuite.updateCounters();
-                    SystemUXNotifications.push("Transaction successful! Secure links generated.");
-                    SystemUINavigation.switchViewport("dashboard");
-                }, 1500);
-            }
-        };
+        if(!email.includes("@") || totalAmount <= 0) {
+            SystemUXNotifications.push("Provide a destination email and valid cart total.");
+            return;
+        }
 
-        // Module: Distributed Sovereign Publisher Dashboard System Controls
-        const SystemCreatorDashboard = {
-            openPublishingModal() {
-                const modal = document.getElementById("assetCreationOverlayHUD");
-                modal.classList.remove("hidden");
-                setTimeout(() => modal.classList.remove("opacity-0"), 10);
+        let handler = PaystackPop.setup({
+            key: 'pk_live_7d914000404cc8b8c998d258948378c4ac5a6ecd', 
+            email: email,
+            amount: Math.round(totalAmount * 100), 
+            currency: 'USD', 
+            metadata: {
+                cart_items: state.cart
             },
-            closePublishingModal() {
-                const modal = document.getElementById("assetCreationOverlayHUD");
-                modal.classList.add("opacity-0");
-                setTimeout(() => modal.classList.add("hidden"), 300);
-            },
-            executeMintTransaction() {
-                const name = document.getElementById("mintNameField").value.trim();
-                const cat = document.getElementById("mintCategoryField").value;
-                const price = parseFloat(document.getElementById("mintPriceField").value) || 29.00;
-                const desc = document.getElementById("mintDescField").value.trim() || "Premium digital compilation node asset asset framework collection.";
-
-                if(!name) {
-                    alert("Token identity field parameter required.");
-                    return;
-                }
-
-                const newAsset = {
-                    id: "custom-" + Date.now(),
-                    title: name,
-                    description: desc,
-                    price: price,
-                    category: cat,
-                    rating: 5.0,
-                    author: "Anonymous Sovereign",
-                    badge: "new",
-                    image: "https://images.unsplash.com/photo-1614741118887-7a4ee193a5fa?w=400&q=80",
-                    tags: [cat, "Mntd"]
-                };
-
-                state.products.unshift(newAsset);
+            callback: function(response){
+                state.cart = [];
                 saveStateToStorage();
-                
-                SystemUXNotifications.push(`Asset ${name} successfully minted into ledger distribution lists.`);
-                this.closePublishingModal();
-                
-                document.getElementById("mintNameField").value = "";
-                document.getElementById("mintDescField").value = "";
-                
-                this.renderConsole();
+                SystemCartSuite.updateCounters();
+                SystemUXNotifications.push("Transaction Authorized! Reference: " + response.reference);
+                SystemUINavigation.switchViewport("dashboard");
             },
-            renderConsole() {
-                const inject = document.getElementById("creatorCatalogInject");
-                // Filters mock generated custom assets created inside the active runtime logic iteration
-                const internalAssets = state.products.filter(p => p.id.startsWith("custom-") || p.id.startsWith("asset-"));
-                
-                inject.innerHTML = internalAssets.slice(0,3).map(p => `
-                    <div class="bg-black/40 border border-white/[0.04] rounded-lg p-2 flex items-center justify-between text-xs">
-                        <div class="flex items-center gap-2 truncate">
-                            <div class="w-1.5 h-1.5 bg-[#C5A059] rounded-full animate-pulse"></div>
-                            <span class="font-mono text-gray-300 truncate uppercase tracking-wider">${p.title}</span>
-                        </div>
-                        <span class="font-mono text-[#C5A059] text-[11px] shrink-0 font-bold">$${p.price.toFixed(2)}</span>
-                    </div>
-                `).join("");
+            onClose: function(){
+                SystemUXNotifications.push("Transaction panel exited.");
             }
-        };
-
-        // Module: Broadcast Core Engine Notification Control Interface Registry
-        const SystemUXNotifications = {
-            renderPanelToggle() {
-                SystemUINavigation.switchViewport("notifications");
-            },
-            push(messageStr) {
-                state.notifications.unshift({
-                    id: Date.now(),
-                    text: messageStr,
-                    read: false,
-                    time: "Just Now"
-                });
-                this.updateBadgeIndicator();
-                if(SystemUINavigation.currentViewport === 'notifications') this.renderStack();
-            },
-            clearAll() {
-                state.notifications = [];
-                this.renderStack();
-                this.updateBadgeIndicator();
-            },
-            updateBadgeIndicator() {
-                const indicator = document.getElementById("globalNotificationIndicator");
-                const hasUnread = state.notifications.some(n => !n.read);
-                indicator.classList.toggle("hidden", !hasUnread);
-            },
-            renderStack() {
-                const target = document.getElementById("notificationStackInject");
-                if(state.notifications.length === 0) {
-                    target.innerHTML = `<div class="text-center py-12 text-gray-600 text-[10px] font-mono uppercase tracking-widest">No System Logs Staged</div>`;
-                    return;
-                }
-                
-                target.innerHTML = state.notifications.map(n => {
-                    n.read = true; // Mark as read on visual interaction
-                    return `
-                        <div class="deco-card p-3 rounded-xl flex items-start gap-3 bg-[#0F0E0D]">
-                            <div class="w-2 h-2 rounded-full mt-1 bg-[#C5A059] shrink-0"></div>
-                            <div class="flex-1">
-                                <p class="text-[11px] text-gray-300 leading-normal font-light">${n.text}</p>
-                                <span class="text-[8px] text-gray-600 font-mono block mt-1 uppercase">${n.time}</span>
-                            </div>
-                        </div>
-                    `;
-                }).join("");
-                this.updateBadgeIndicator();
-            }
-        };
-
-        // Complete Orchestrated Boot Pipeline Lifecycle Ignition
-        document.addEventListener("DOMContentLoaded", () => {
-            SystemSearchEngine.init();
-            SystemCartSuite.updateCounters();
-            SystemCatalogManager.renderGrid();
-            SystemUXNotifications.updateBadgeIndicator();
         });
-    </script>  
-</body>  
-</html>
+        handler.openIframe();
+         }
+ };
