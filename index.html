@@ -1,731 +1,685 @@
-<!DOCTYPE html>  
-<html lang="en">  
-<head>  
-    <meta charset="UTF-8">  
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">  
-    <meta name="apple-mobile-web-app-capable" content="yes">  
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">  
-    <title>Digital Asset Hub — Premium Luxury Marketplace</title>  
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>  
-    <link rel="preconnect" href="https://fonts.googleapis.com">  
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>  
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">  
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">  
-    <script src="https://js.paystack.co/v1/inline.js"></script>  
-
-    <style>  
-        :root {  
-            --gold-primary: #C5A059;  
-            --gold-dark: #8C7343;  
-            --gold-light: #E5C387;  
-            --bg-charcoal: #12100E;  
-            --bg-absolute: #070605;  
-            --glass-bg: rgba(18, 16, 14, 0.75);  
-            --glass-border: rgba(197, 160, 89, 0.15);  
-        }  
-
-        body {  
-            font-family: 'Inter', sans-serif;  
-            background-color: var(--bg-absolute);  
-            color: #F1F5F9;  
-            overflow: hidden;  
-            -webkit-tap-highlight-color: transparent;  
-            user-select: none;  
-        }  
-
-        .luxury-title {  
-            font-family: 'Cinzel', serif;  
-            letter-spacing: 0.22em;  
-            text-shadow: 0 0 12px rgba(197, 160, 89, 0.2);  
-        }  
-
-        .deco-card {  
-            position: relative;  
-            background: var(--glass-bg);  
-            border: 1px solid var(--glass-border);  
-            backdrop-filter: blur(20px);  
-            -webkit-backdrop-filter: blur(20px);  
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);  
-        }  
-
-        .deco-card::before, .deco-card::after {  
-            content: "";  
-            position: absolute;  
-            width: 8px;  
-            height: 8px;  
-            border: 1px solid var(--gold-primary);  
-            z-index: 10;  
-            pointer-events: none;  
-            transition: all 0.3s ease;  
-        }  
-        .deco-card::before { top: 3px; left: 3px; border-right: none; border-bottom: none; }  
-        .deco-card::after { bottom: 3px; right: 3px; border-left: none; border-top: none; }  
-          
-        .deco-card:active::before { top: 1px; left: 1px; width: 12px; height: 12px; }  
-        .deco-card:active::after { bottom: 1px; right: 1px; width: 12px; height: 12px; }  
-
-        .search-highlight {  
-            background: rgba(197, 160, 89, 0.3);  
-            color: var(--gold-light);  
-            font-weight: 700;  
-            padding: 0 2px;  
-            border-radius: 2px;  
-        }  
-
-        .no-scrollbar::-webkit-scrollbar { display: none; }  
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }  
-
-        @keyframes ripple-effect {  
-            to { transform: scale(4); opacity: 0; }  
-        }  
-        .ripple {  
-            position: absolute;  
-            background: rgba(197, 160, 89, 0.3);  
-            border-radius: 50%;  
-            transform: scale(0);  
-            animation: ripple-effect 0.6s cubic-bezier(0.1, 0.8, 0.3, 1);  
-            pointer-events: none;  
-        }  
-
-        @keyframes skeleton-shimmer {  
-            0% { background-position: 200% 0; }  
-            100% { background-position: -200% 0; }  
-        }  
-        .shimmer {  
-            background: linear-gradient(90deg, #181512 25%, #2A241E 50%, #181512 75%);  
-            background-size: 200% 100%;  
-            animation: skeleton-shimmer 1.5s infinite linear;  
-        }  
-
-        .nav-link.active i {  
-            color: var(--gold-primary);  
-            text-shadow: 0 0 15px rgba(197, 160, 89, 0.6);  
-            transform: translateY(-2px);  
-        }  
-        .nav-link.active span { color: white; font-weight: 600; }  
-        .nav-link::after {  
-            content: '';  
-            position: absolute;  
-            bottom: 4px;  
-            width: 0;  
-            height: 2px;  
-            background: var(--gold-primary);  
-            transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1);  
-        }  
-        .nav-link.active::after { width: 16px; }  
-
-        .app-container {  
-            width: 100%;  
-            max-width: 480px;  
-            height: 100vh;  
-            background: var(--bg-absolute);  
-            position: relative;  
-            overflow: hidden;  
-            display: flex;  
-            flex-direction: column;  
-        }  
-    </style>
-</head>  
-<body class="flex items-center justify-center min-h-screen bg-[#020202]">  
-
-    <div class="app-container border-x border-white/[0.03] shadow-2xl flex flex-col justify-between" id="rootAppShell">  
-          
-        <div class="w-full bg-gradient-to-r from-[#8C7343] to-[#C5A059] text-black text-[9px] uppercase tracking-[0.15em] font-bold py-1.5 px-4 text-center shrink-0 flex items-center justify-center gap-1.5 z-50">  
-            <i class="fa-solid fa-bolt-lightning animate-pulse"></i>   
-            <span>Flash Sale Live: Use code <span class="underline">GOLD25</span> for 25% Off</span>  
-        </div>  
-
-        <header class="w-full pt-4 px-4 pb-3 bg-black/90 backdrop-blur-md border-b border-white/[0.04] shrink-0 z-40">  
-            <div class="flex items-center justify-between mb-3">  
-                <div class="flex flex-col">  
-                    <span class="text-[8px] tracking-[0.3em] uppercase text-gray-500 font-bold">The Luxury Registry</span>  
-                    <h1 class="text-[#C5A059] text-sm font-black uppercase luxury-title mt-0.5 cursor-pointer" onclick="SystemUINavigation.switchViewport('browse')">Digital Asset Hub</h1>  
                 </div>  
-                <div class="flex items-center gap-2">  
-                    <button onclick="SystemUINavigation.openGlobalSearch()" class="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-gray-400 active:text-[#C5A059] transition-colors">  
-                        <i class="fa-solid fa-magnifying-glass text-xs"></i>  
-                    </button>  
-                    <button onclick="SystemUXNotifications.renderPanelToggle()" class="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-gray-400 relative">  
-                        <i class="fa-solid fa-bell text-xs"></i>  
-                        <span id="globalNotificationIndicator" class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-amber-400 rounded-full hidden"></span>  
-                    </button>  
-                </div>  
-            </div>  
-
-            <div id="dynamicSearchSuite" class="hidden transform transition-all duration-300">  
-                <div class="relative flex items-center w-full">  
-                    <input type="text" id="engineSearchInput" placeholder="Fuzzy matching tags, items, collections..." class="w-full bg-[#141210] border border-[#C5A059]/30 rounded-lg px-3.5 py-2 text-xs text-slate-200 placeholder-gray-600 focus:outline-none focus:border-[#C5A059] pr-16">  
-                    <div class="absolute right-3 flex items-center gap-2">  
-                        <button onclick="SystemSearchEngine.clearSearch()" id="clearSearchAction" class="text-gray-500 hover:text-white hidden"><i class="fa-solid fa-circle-xmark text-xs"></i></button>  
-                        <i class="fa-solid fa-circle-nodes text-[#C5A059]/50 text-xs"></i>  
-                    </div>  
-                </div>  
-                <div id="searchAutocompleteHUD" class="absolute top-full left-0 right-0 mt-1.5 bg-[#0F0E0D] border border-[#C5A059]/25 rounded-xl shadow-2xl p-3 z-50 space-y-3 hidden">  
-                    <div>  
-                        <div class="flex justify-between items-center mb-1.5">  
-                            <span class="text-[9px] font-bold tracking-widest text-[#8C7343] uppercase">Recent Search Memory</span>  
-                            <button onclick="SystemSearchEngine.wipeHistory()" class="text-[9px] text-gray-500 underline">Wipe</button>  
-                        </div>  
-                        <div id="searchHistoryChips" class="flex flex-wrap gap-1.5"></div>  
-                    </div>  
-                </div>  
-            </div>  
-        </header>  
-
-        <main class="flex-1 overflow-y-auto px-4 pb-24 pt-2 no-scrollbar space-y-5" id="appViewportMaster">  
-              
-            <div id="view-browse" class="application-viewport space-y-4">  
-                <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 -mx-4 px-4 shrink-0">  
-                    <button onclick="SystemCatalogManager.filterCategory('ALL')" data-category-pill="ALL" class="category-pill shrink-0 px-4 py-2 rounded-lg text-[10px] font-bold tracking-widest uppercase border bg-[#C5A059] border-[#C5A059] text-black">All Assets</button>  
-                    <button onclick="SystemCatalogManager.filterCategory('AI')" data-category-pill="AI" class="category-pill shrink-0 px-4 py-2 rounded-lg text-[10px] font-bold tracking-widest uppercase border border-white/5 bg-white/5 text-gray-400">AI Products</button>  
-                    <button onclick="SystemCatalogManager.filterCategory('EBook')" data-category-pill="EBook" class="category-pill shrink-0 px-4 py-2 rounded-lg text-[10px] font-bold tracking-widest uppercase border border-white/5 bg-white/5 text-gray-400">E-Books</button>  
-                    <button onclick="SystemCatalogManager.filterCategory('Software')" data-category-pill="Software" class="category-pill shrink-0 px-4 py-2 rounded-lg text-[10px] font-bold tracking-widest uppercase border border-white/5 bg-white/5 text-gray-400">Software</button>  
-                    <button onclick="SystemCatalogManager.filterCategory('Templates')" data-category-pill="Templates" class="category-pill shrink-0 px-4 py-2 rounded-lg text-[10px] font-bold tracking-widest uppercase border border-white/5 bg-white/5 text-gray-400">Templates</button>  
-                </div>  
-
-                <div class="flex items-center justify-between bg-[#12100E] border border-white/[0.03] rounded-lg p-2">  
-                    <div class="flex items-center gap-1">  
-                        <i class="fa-solid fa-arrow-up-wide-short text-[10px] text-[#C5A059]"></i>  
-                        <select id="sortConfigSelector" onchange="SystemCatalogManager.handleSortReorder()" class="bg-transparent text-gray-300 text-[10px] font-medium tracking-wide focus:outline-none cursor-pointer">  
-                            <option value="curated" class="bg-[#12100E]">Curated Order</option>  
-                            <option value="price-low" class="bg-[#12100E]">Price: Low to High</option>  
-                            <option value="price-high" class="bg-[#12100E]">Price: High to Low</option>  
-                            <option value="rating" class="bg-[#12100E]">Highest Quality</option>  
-                        </select>  
-                    </div>  
-                    <span id="catalogCountFeedback" class="text-[9px] font-mono font-bold text-[#8C7343] uppercase tracking-wider">Loading...</span>  
-                </div>  
-
-                <div id="catalogGridInject" class="space-y-4"></div>  
-            </div>  
-
-            <div id="view-wishlist" class="application-viewport hidden space-y-4">  
-                <div class="border-b border-[#C5A059]/20 pb-2">  
-                    <h2 class="text-xs uppercase tracking-widest font-bold text-[#C5A059]">Curated Wishlist Registry</h2>  
-                </div>  
-                <div id="wishlistItemsInject" class="space-y-3"></div>  
-            </div>  
-
-            <div id="view-cart" class="application-viewport hidden space-y-4">  
-                <div class="border-b border-[#C5A059]/20 pb-2">  
-                    <h2 class="text-xs uppercase tracking-widest font-bold text-[#C5A059]">Secure Cart Matrix</h2>  
-                </div>  
-                <div id="cartItemsInject" class="space-y-3"></div>  
-                  
-                <div id="cartLedgerSummaryBlock" class="bg-[#12100E] border border-[#C5A059]/20 rounded-xl p-4 space-y-3 hidden">  
-                    <div class="space-y-2">  
-                        <div class="flex justify-between items-center text-[11px] text-gray-400">  
-                            <span>Subtotal Value</span>  
-                            <span class="font-mono text-white" id="ledgerSubtotal">$0.00</span>  
-                        </div>  
-                        <div class="flex justify-between items-center text-[11px]">  
-                            <span class="text-[#C5A059]">Dynamic Promotion Discount</span>  
-                            <span class="font-mono text-emerald-400" id="ledgerDiscount">-$0.00</span>  
-                        </div>  
-                        <div class="flex items-center gap-2 pt-1">  
-                            <input type="text" id="couponCodeFormInput" placeholder="Promo code (e.g., GOLD25)" class="flex-1 bg-black border border-white/10 rounded px-2.5 py-1.5 text-[10px] uppercase font-mono tracking-wider text-white focus:outline-none focus:border-[#C5A059]">  
-                            <button onclick="SystemCartSuite.applyPromoCouponCode()" class="bg-white/5 border border-white/10 px-3 py-1.5 text-[10px] font-bold text-[#C5A059] uppercase tracking-wider rounded active:bg-[#C5A059]/10">Apply</button>  
-                        </div>  
-                        <div class="h-px bg-white/[0.05] my-1"></div>  
-                        <div class="flex justify-between items-center text-xs font-bold">  
-                            <span class="text-gray-300">Total Obligations</span>  
-                            <span class="font-mono text-[#C5A059] text-sm" id="ledgerTotal">$0.00</span>  
-                        </div>  
-                    </div>  
-
-                    <div class="space-y-1 pt-1">  
-                        <label class="block text-[9px] uppercase tracking-wider text-gray-500 font-bold">Delivery Email Destination</label>  
-                        <input type="email" id="checkoutReceiptEmail" value="collector@luxury.com" placeholder="your.name@luxury.com" class="w-full bg-black border border-white/10 rounded p-2 text-xs text-white focus:outline-none focus:border-[#C5A059]">  
-                    </div>  
-
-                    <button onclick="SystemPaymentGateway.initializePaystackSession(event)" class="w-full bg-gradient-to-r from-[#8C7343] to-[#C5A059] text-black font-extrabold text-[11px] uppercase tracking-[0.15em] py-3 rounded-lg mt-2 relative overflow-hidden transition-transform active:scale-[0.98]">  
-                        <i class="fa-solid fa-shield-halved mr-1"></i> Authorize Premium Checkout  
-                    </button>  
-                </div>  
-            </div>  
-
-            <div id="view-dashboard" class="application-viewport hidden space-y-5">  
-                <div class="grid grid-cols-2 gap-3">  
-                    <div class="bg-gradient-to-br from-[#161411] to-[#0A0908] border border-[#C5A059]/20 p-3.5 rounded-xl">  
-                        <span class="text-[8px] text-gray-500 uppercase tracking-widest block font-bold">Gross Allocated Capital</span>  
-                        <span id="kpiGrossRevenue" class="text-base font-mono font-bold text-white mt-1 block">$1,450.00</span>  
-                        <span class="text-[8px] text-emerald-400 font-bold block mt-1"><i class="fa-solid fa-arrow-trend-up"></i> +14.2% Audit Cycle</span>  
-                    </div>  
-                    <div class="bg-gradient-to-br from-[#161411] to-[#0A0908] border border-[#C5A059]/20 p-3.5 rounded-xl">  
-                        <span class="text-[8px] text-gray-500 uppercase tracking-widest block font-bold">Verified Downloads Delivered</span>  
-                        <span id="kpiTotalDownloads" class="text-base font-mono font-bold text-[#C5A059] mt-1 block">42</span>  
-                        <span class="text-[8px] text-[#C5A059]/60 block mt-1">100% Secure Integrity</span>  
-                    </div>  
-                </div>  
-
-                <div class="bg-[#12100E] border border-white/[0.04] rounded-xl p-3.5 space-y-2">  
-                    <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest block">Operational Analytics Wave</span>  
-                    <div class="h-20 flex items-end gap-2.5 pt-4 pb-1 px-2">  
-                        <div class="flex-1 bg-[#8C7343]/20 hover:bg-[#C5A059]/40 h-[35%] rounded-t relative group transition-all"><span class="absolute -top-4 left-1/2 -translate-x-1/2 text-[8px] font-mono text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">$35</span></div>  
-                        <div class="flex-1 bg-[#8C7343]/20 hover:bg-[#C5A059]/40 h-[55%] rounded-t relative group transition-all"><span class="absolute -top-4 left-1/2 -translate-x-1/2 text-[8px] font-mono text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">$55</span></div>  
-                        <div class="flex-1 bg-[#8C7343]/20 hover:bg-[#C5A059]/40 h-[40%] rounded-t relative group transition-all"><span class="absolute -top-4 left-1/2 -translate-x-1/2 text-[8px] font-mono text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">$40</span></div>  
-                        <div class="flex-1 bg-[#8C7343]/20 hover:bg-[#C5A059]/40 h-[85%] rounded-t relative group transition-all"><span class="absolute -top-4 left-1/2 -translate-x-1/2 text-[8px] font-mono text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">$85</span></div>  
-                        <div class="flex-1 bg-[#C5A059] h-[95%] rounded-t relative group transition-all"><span class="absolute -top-4 left-1/2 -translate-x-1/2 text-[8px] font-mono text-white font-bold opacity-100">$120</span></div>  
-                    </div>  
-                    <div class="flex justify-between text-[8px] font-bold text-gray-600 tracking-wider font-mono">  
-                        <span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>TODAY</span>  
-                    </div>  
-                </div>  
-
-                <div class="space-y-3">  
-                    <div class="flex justify-between items-center border-b border-white/[0.05] pb-1.5">  
-                        <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Vault Asset Management</span>  
-                        <button onclick="SystemCreatorDashboard.openPublishingModal()" class="text-[9px] font-bold text-black bg-[#C5A059] px-2.5 py-1 rounded tracking-wider uppercase"><i class="fa-solid fa-plus text-[8px]"></i> Mint Asset</button>  
-                    </div>  
-                    <div id="creatorCatalogInject" class="space-y-2.5"></div>  
-                </div>  
-            </div>  
-
-            <div id="view-product-detail" class="application-viewport hidden space-y-4">  
-                <button onclick="SystemUINavigation.popSubpageToBrowse()" class="text-[10px] text-gray-400 hover:text-white uppercase tracking-wider flex items-center gap-1"><i class="fa-solid fa-arrow-left"></i> Return to Catalog</button>  
-                <div id="productDetailContextInject" class="space-y-4"></div>  
-            </div>  
-
-            <div id="view-notifications" class="application-viewport hidden space-y-4">  
-                <div class="flex justify-between items-center border-b border-[#C5A059]/20 pb-2">  
-                    <h2 class="text-xs uppercase tracking-widest font-bold text-[#C5A059]">System Broadcast Log</h2>  
-                    <button onclick="SystemUXNotifications.clearAll()" class="text-[9px] text-gray-500 hover:text-white uppercase tracking-wider underline">Clear All</button>  
-                </div>  
-                <div id="notificationStackInject" class="space-y-2.5"></div>  
+                <div id="systemLogInject" class="space-y-2.5"></div>  
             </div>  
         </main>  
 
-        <div id="assetCreationOverlayHUD" class="absolute inset-0 bg-black/95 backdrop-blur-xl z-50 flex items-center justify-center p-5 hidden opacity-0 transition-all duration-300">  
-            <div class="w-full bg-[#0E0D0B] border border-[#C5A059]/30 rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar shadow-2xl">  
-                <div class="flex justify-between items-center border-b border-white/[0.05] pb-2">  
-                    <h3 class="text-xs font-bold text-[#C5A059] uppercase tracking-widest luxury-title">Mint Vault Asset Token</h3>  
-                    <button onclick="SystemCreatorDashboard.closePublishingModal()" class="text-gray-500 hover:text-white"><i class="fa-solid fa-xmark text-sm"></i></button>  
-                </div>  
-                <div class="space-y-3">  
-                    <div>  
-                        <label class="block text-[9px] uppercase tracking-wider text-gray-400 font-bold mb-1">Asset Nomenclature</label>  
-                        <input type="text" id="mintNameField" placeholder="e.g., Cyberpunk UI Assets Pack" class="w-full bg-black border border-white/10 rounded p-2 text-xs text-white focus:outline-none focus:border-[#C5A059]">  
-                    </div>  
-                    <div>  
-                        <label class="block text-[9px] uppercase tracking-wider text-gray-400 font-bold mb-1">Marketplace Classification</label>  
-                        <select id="mintCategoryField" class="w-full bg-[#12100E] border border-white/10 rounded p-2 text-xs text-gray-300 focus:outline-none focus:border-[#C5A059]">  
-                            <option value="AI">AI Products</option>  
-                            <option value="EBook">E-Books</option>  
-                            <option value="Software">Software</option>  
-                            <option value="Templates">Templates</option>  
-                        </select>  
-                    </div>  
-                    <div>  
-                        <label class="block text-[9px] uppercase tracking-wider text-gray-400 font-bold mb-1">Value Asset Listing Price (USD)</label>  
-                        <input type="number" id="mintPriceField" placeholder="49.00" class="w-full bg-black border border-white/10 rounded p-2 text-xs text-white focus:outline-none focus:border-[#C5A059]">  
-                    </div>  
-                    <div>  
-                        <label class="block text-[9px] uppercase tracking-wider text-gray-400 font-bold mb-1">Short Context Description</label>  
-                        <input type="text" id="mintDescField" placeholder="Premium architectural node resource..." class="w-full bg-black border border-white/10 rounded p-2 text-xs text-white focus:outline-none focus:border-[#C5A059]">  
-                    </div>  
-                    <button onclick="SystemCreatorDashboard.executeMintTransaction()" class="w-full bg-gradient-to-r from-[#8C7343] to-[#C5A059] text-black font-extrabold text-[10px] uppercase tracking-[0.15em] py-2.5 rounded-lg mt-2">  
-                        Authorize Node Deployment  
-                    </button>  
-                </div>  
+        <nav class="w-full bg-black/90 backdrop-blur-lg border-t border-white/[0.04] py-2 px-3 absolute bottom-0 left-0 right-0 z-40 shrink-0">  
+            <div class="flex items-center justify-around">  
+                <button onclick="SystemUINavigation.switchViewport('browse')" data-nav-target="browse" class="nav-link active relative flex flex-col items-center justify-center pt-1 pb-2 w-14 text-center transition-all">  
+                    <i class="fa-solid fa-gem text-xs text-gray-500 mb-1 transition-transform"></i>  
+                    <span class="text-[8px] tracking-wider uppercase text-gray-500 transition-colors">Catalog</span>  
+                </button>  
+                <button onclick="SystemUINavigation.switchViewport('wishlist')" data-nav-target="wishlist" class="nav-link relative flex flex-col items-center justify-center pt-1 pb-2 w-14 text-center transition-all">  
+                    <i class="fa-solid fa-heart-crack text-xs text-gray-500 mb-1 transition-transform"></i>  
+                    <span class="text-[8px] tracking-wider uppercase text-gray-500 transition-colors">Favs</span>  
+                </button>  
+                <button onclick="SystemUINavigation.switchViewport('cart')" data-nav-target="cart" class="nav-link relative flex flex-col items-center justify-center pt-1 pb-2 w-14 text-center transition-all">  
+                    <i class="fa-solid fa-vault text-xs text-gray-500 mb-1 transition-transform"></i>  
+                    <span class="text-[8px] tracking-wider uppercase text-gray-500 transition-colors">Cart</span>  
+                    <span id="cartCountBadge" class="absolute top-0 right-1 bg-[#C5A059] text-black text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center hidden scale-90">0</span>  
+                </button>  
+                <button onclick="SystemUINavigation.switchViewport('dashboard')" data-nav-target="dashboard" class="nav-link relative flex flex-col items-center justify-center pt-1 pb-2 w-14 text-center transition-all">  
+                    <i class="fa-solid fa-chart-pie text-xs text-gray-500 mb-1 transition-transform"></i>  
+                    <span class="text-[8px] tracking-wider uppercase text-gray-500 transition-colors">Studio</span>  
+                </button>  
             </div>  
-        </div>  
-
-        <nav class="w-full bg-black/95 backdrop-blur-md border-t border-white/[0.04] py-2 px-6 flex items-center justify-between absolute bottom-0 left-0 right-0 z-40 shrink-0">  
-            <button onclick="SystemUINavigation.switchViewport('browse')" id="navBtn-browse" class="nav-link active relative flex flex-col items-center gap-1 text-gray-400 py-1 transition-all">  
-                <i class="fa-solid fa-gem text-xs"></i>  
-                <span class="text-[8px] uppercase tracking-wider font-semibold">Catalog</span>  
-            </button>  
-            <button onclick="SystemUINavigation.switchViewport('wishlist')" id="navBtn-wishlist" class="nav-link relative flex flex-col items-center gap-1 text-gray-400 py-1 transition-all">  
-                <i class="fa-solid fa-heart text-xs"></i>  
-                <span class="text-[8px] uppercase tracking-wider font-semibold">Registry</span>  
-            </button>  
-            <button onclick="SystemUINavigation.switchViewport('cart')" id="navBtn-cart" class="nav-link relative flex flex-col items-center gap-1 text-gray-400 py-1 transition-all">  
-                <div class="relative">  
-                    <i class="fa-solid fa-vault text-xs"></i>  
-                    <span id="navCartCountIndicator" class="absolute -top-1.5 -right-2 bg-[#C5A059] text-black text-[7px] font-black h-3.5 w-3.5 flex items-center justify-center rounded-full border border-black hidden">0</span>  
-                </div>  
-                <span class="text-[8px] uppercase tracking-wider font-semibold">Cart</span>  
-            </button>  
-            <button onclick="SystemUINavigation.switchViewport('dashboard')" id="navBtn-dashboard" class="nav-link relative flex flex-col items-center gap-1 text-gray-400 py-1 transition-all">  
-                <i class="fa-solid fa-chart-line text-xs"></i>  
-                <span class="text-[8px] uppercase tracking-wider font-semibold">Console</span>  
-            </button>  
         </nav>  
-
     </div>  
-
     <script>
-        // In-memory persistence shim (browser storage APIs are unavailable in this preview sandbox)
-        const memoryStore = {};
-        const localStorage = {
-            getItem: (key) => (key in memoryStore ? memoryStore[key] : null),
-            setItem: (key, value) => { memoryStore[key] = value; }
+                const state = {  
+            catalog: [  
+                { id: "as-1", title: "Autonomous Trading Framework v4", price: 299, rating: 4.9, category: "Software", description: "Ultra low-latency programmatic market maker build script with native webhook structures.", downloads: 142, tags: ["trading", "hft", "bot"] },  
+                { id: "as-2", title: "Luxury Agency Prompt Library", price: 49, rating: 4.8, category: "AI", description: "System level contextual frameworks engineered for Midjourney v6 architectural layouts.", downloads: 820, tags: ["ai", "midjourney", "prompts"] },  
+                { id: "as-3", title: "Decentralized Escrow System Contracts", price: 189, rating: 4.7, category: "Software", description: "Production ready secure multi-sig smart logic suite audited against standard overflow maps.", downloads: 68, tags: ["solidity", "web3", "escrow"] },  
+                { id: "as-4", title: "Sovereign Operator Playbook", price: 29, rating: 4.6, category: "EBook", description: "High security configuration parameters for cross-border digital asset preservation strategies.", downloads: 1104, tags: ["ebook", "privacy", "alpha"] }  
+            ],  
+            cart: [],  
+            wishlist: [],  
+            history: [],  
+            promoApplied: false,  
+            currentViewport: "browse"  
+        };  
+
+        const SystemCatalogManager = {  
+            activeCategory: "ALL",  
+            render() {  
+                const grid = document.getElementById("catalogGridInject");  
+                const sortVal = document.getElementById("sortConfigSelector").value;  
+                let list = [...state.catalog];  
+
+                if (this.activeCategory !== "ALL") {  
+                    list = list.filter(x => x.category === this.activeCategory);  
+                }  
+
+                if (sortVal === "price-low") list.sort((a,b) => a.price - b.price);  
+                else if (sortVal === "price-high") list.sort((a,b) => b.price - a.price);  
+                else if (sortVal === "rating") list.sort((a,b) => b.rating - a.rating);  
+
+                document.getElementById("catalogCountFeedback").innerText = `${list.length} Assets Registered`;  
+                grid.innerHTML = list.map(item => `  
+                    <div class="deco-card rounded-2xl p-4 flex flex-col justify-between min-h-[140px]" onclick="SystemUINavigation.navigateToDetail('${item.id}')">  
+                        <div>  
+                            <div class="flex justify-between items-start gap-3">  
+                                <h3 class="text-xs font-bold text-slate-100 tracking-wide line-clamp-1 flex-1">${item.title}</h3>  
+                                <span class="font-mono text-[10px] text-[#C5A059] bg-[#C5A059]/10 border border-[#C5A059]/20 px-1.5 py-0.5 rounded">${item.category}</span>  
+                            </div>  
+                            <p class="text-[10px] text-gray-400 mt-1.5 line-clamp-2 leading-relaxed font-light">${item.description}</p>  
+                        </div>  
+                        <div class="flex items-center justify-between mt-3 pt-2.5 border-t border-white/[0.03]">  
+                            <span class="font-mono text-sm font-black text-[#C5A059]">$${item.price}.00</span>  
+                            <div class="flex items-center gap-1.5" onclick="event.stopPropagation();">  
+                                <button onclick="SystemCartSuite.toggleWishlist('${item.id}')" class="w-7 h-7 rounded-lg border border-white/5 bg-white/5 text-gray-400 flex items-center justify-center active:text-rose-400 text-[10px]"><i class="${state.wishlist.includes(item.id) ? 'fa-solid fa-heart text-rose-500' : 'fa-regular fa-heart'}"></i></button>  
+                                <button onclick="SystemCartSuite.addToCart('${item.id}')" class="bg-[#C5A059] hover:bg-[#E5C387] text-black font-bold text-[9px] tracking-wider uppercase px-3 py-1.5 rounded-lg flex items-center gap-1"><i class="fa-solid fa-plus text-[8px]"></i> Acquire</button>  
+                            </div>  
+                        </div>  
+                    </div>  
+                `).join('');  
+            },  
+            filterCategory(cat) {  
+                this.activeCategory = cat;  
+                document.querySelectorAll(".category-pill").forEach(el => {  
+                    if (el.getAttribute("data-category-pill") === cat) {  
+                        el.className = "category-pill shrink-0 px-4 py-2 rounded-lg text-[10px] font-bold tracking-widest uppercase border bg-[#C5A059] border-[#C5A059] text-black";  
+                    } else {  
+                        el.className = "category-pill shrink-0 px-4 py-2 rounded-lg text-[10px] font-bold tracking-widest uppercase border border-white/5 bg-white/5 text-gray-400";  
+                    }  
+                });  
+                this.render();  
+            },  
+            handleSortReorder() { this.render(); }  
         };
+                const SystemCartSuite = {  
+            addToCart(id) {  
+                if (!state.cart.includes(id)) {  
+                    state.cart.push(id);  
+                    SystemUXNotifications.push("Asset queued into localized encryption shell.");  
+                    this.updateCounters();  
+                    saveStateToStorage();  
+                }  
+            },  
+            removeFromCart(id) {  
+                state.cart = state.cart.filter(x => x !== id);  
+                this.updateCounters();  
+                this.renderCart();  
+                saveStateToStorage();  
+            },  
+            toggleWishlist(id) {  
+                if (state.wishlist.includes(id)) {  
+                    state.wishlist = state.wishlist.filter(x => x !== id);  
+                } else {  
+                    state.wishlist.push(id);  
+                    SystemUXNotifications.push("Item persistent tracking bound to workspace profile.");  
+                }  
+                SystemCatalogManager.render();  
+                this.renderWishlist();  
+                saveStateToStorage();  
+            },  
+            updateCounters() {  
+                const badge = document.getElementById("cartCountBadge");  
+                badge.innerText = state.cart.length;  
+                if (state.cart.length > 0) badge.classList.remove("hidden");  
+                else badge.classList.add("hidden");  
+            },  
+            renderCart() {  
+                const container = document.getElementById("cartItemsInject");  
+                const summaryBlock = document.getElementById("cartLedgerSummaryBlock");  
+                if (state.cart.length === 0) {  
+                    container.innerHTML = `<div class="text-center py-8 text-gray-600 text-[10px] tracking-wider uppercase font-medium">Cart Workspace Empty</div>`;  
+                    summaryBlock.classList.add("hidden");  
+                    return;  
+                }  
+                summaryBlock.classList.remove("hidden");  
+                const items = state.cart.map(id => state.catalog.find(x => x.id === id)).filter(Boolean);  
+                container.innerHTML = items.map(x => `  
+                    <div class="bg-[#12100E] border border-white/[0.03] p-3 rounded-xl flex justify-between items-center">  
+                        <div>  
+                            <h4 class="text-xs font-bold text-gray-200">${x.title}</h4>  
+                            <span class="font-mono text-[9px] text-[#C5A059]">$${x.price}.00</span>  
+                        </div>  
+                        <button onclick="SystemCartSuite.removeFromCart('${x.id}')" class="text-gray-500 hover:text-rose-400 text-xs p-1"><i class="fa-solid fa-trash-can"></i></button>  
+                    </div>  
+                `).join('');  
+                this.calculateLedger(items);  
+            },  
+            calculateLedger(items) {  
+                const subtotal = items.reduce((acc, x) => acc + x.price, 0);  
+                const discount = state.promoApplied ? subtotal * 0.25 : 0;  
+                const total = subtotal - discount;  
+                document.getElementById("ledgerSubtotal").innerText = `$${subtotal.toFixed(2)}`;  
+                document.getElementById("ledgerDiscount").innerText = `-$${discount.toFixed(2)}`;  
+                document.getElementById("ledgerTotal").innerText = `$${total.toFixed(2)}`;  
+            },  
+            applyPromoCouponCode() {  
+                const input = document.getElementById("couponCodeFormInput").value.trim().toUpperCase();  
+                if (input === "GOLD25") {  
+                    state.promoApplied = true;  
+                    SystemUXNotifications.push("Promotional matrix validated. 25% allocation deduction active.");  
+                    this.renderCart();  
+                } else {  
+                    SystemUXNotifications.push("Invalid ledger promotion token signature.");  
+                }  
+            },  
+            renderWishlist() {  
+                const container = document.getElementById("wishlistItemsInject");  
+                if (state.wishlist.length === 0) {  
+                    container.innerHTML = `<div class="text-center py-8 text-gray-600 text-[10px] tracking-wider uppercase font-medium">No Tracked Registry Items</div>`;  
+                    return;  
+                }  
+                const items = state.wishlist.map(id => state.catalog.find(x => x.id === id)).filter(Boolean);  
+                container.innerHTML = items.map(x => `  
+                    <div class="bg-[#12100E] border border-white/[0.03] p-3 rounded-xl flex justify-between items-center">  
+                        <div>  
+                            <h4 class="text-xs font-bold text-gray-200">${x.title}</h4>  
+                            <span class="font-mono text-[9px] text-[#C5A059]">$${x.price}.00</span>  
+                        </div>  
+                        <div class="flex items-center gap-2">  
+                            <button onclick="SystemCartSuite.addToCart('${x.id}')" class="text-[#C5A059] text-xs p-1"><i class="fa-solid fa-cart-plus"></i></button>  
+                            <button onclick="SystemCartSuite.toggleWishlist('${x.id}')" class="text-rose-500 text-xs p-1"><i class="fa-solid fa-heart"></i></button>  
+                        </div>  
+                    </div>  
+                `).join('');  
+            }  
+        };  
 
-        // Global Local Store Mock Repository Layer State Architecture
-        const DB_DEFAULTS = [
-            { id: "asset-1", title: "Neo-Deco UI Pro System", description: "Ultra luxury component styling design token matrix optimized for responsive viewports.", price: 89.00, category: "Templates", rating: 4.9, author: "Aethelgard", badge: "featured", image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80", tags: ["Tailwind", "Figma", "UI Kit"] },
-            { id: "asset-2", title: "Automated Algorithmic Arbitrage Pack", description: "Quant trading foundational framework hooks configured for automated trade execution.", price: 245.00, category: "Software", rating: 5.0, author: "Vanderbilt Labs", badge: "bestseller", image: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&q=80", tags: ["Python", "Trading", "AI"] },
-            { id: "asset-3", title: "Synaptic LLM Hyper-Prompt Arrays", description: "Deeply tailored complex system prompt templates engineered for recursive modern AI models.", price: 35.00, category: "AI", rating: 4.7, author: "Kessler Intelligence", badge: "new", image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=400&q=80", tags: ["LLM", "Prompting", "GPT-4"] },
-            { id: "asset-4", title: "Sovereign Capital Investment Strategy Suite", description: "High-net-worth individual digital asset allocation blueprint analysis manuals.", price: 120.00, category: "EBook", rating: 4.8, author: "Marquis de Rothschild", badge: null, image: "https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=400&q=80", tags: ["Finance", "Crypto", "Strategy"] }
-        ];
+        const SystemPaymentGateway = {  
+            initializePaystackSession(e) {  
+                e.preventDefault();  
+                const email = document.getElementById("checkoutReceiptEmail").value;  
+                const totalAmount = parseFloat(document.getElementById("ledgerTotal").innerText.replace('$', ''));  
 
-        let state = {
-            products: JSON.parse(localStorage.getItem("dh_products")) || DB_DEFAULTS,
-            cart: JSON.parse(localStorage.getItem("dh_cart")) || [],
-            wishlist: JSON.parse(localStorage.getItem("dh_wishlist")) || [],
-            history: JSON.parse(localStorage.getItem("dh_search_history")) || ["Deco", "AI System", "Arbitrage"],
-            notifications: [
-                { id: 1, text: "Welcome to Premium Luxury Marketplace Registry Node.", read: false, time: "Just Now" },
-                { id: 2, text: "Flash promotion applied automatically. Code GOLD25 active.", read: true, time: "1h ago" }
-            ],
-            activeCategory: "ALL",
-            searchQuery: "",
-            sortBy: "curated",
-            promoApplied: false
+                if (!email.includes("@") || totalAmount <= 0) {  
+                    SystemUXNotifications.push("Provide a destination email registry format.");  
+                    return;  
+                }  
+
+                if (typeof PaystackPop === 'undefined') {  
+                    SystemUXNotifications.push("Payment gateway is initializing. Please try again in a second.");  
+                    return;  
+                }  
+
+                let handler = PaystackPop.setup({  
+                    key: 'pk_live_7d914000404cc8b8c998d258948378c4ac5a6ecd',  
+                    email: email,  
+                    amount: Math.round(totalAmount * 100),  
+                    currency: 'USD',  
+                    metadata: { cart_items: state.cart },  
+                    callback: function(response) {  
+                        state.cart = [];  
+                        saveStateToStorage();  
+                        SystemCartSuite.updateCounters();  
+                        SystemUXNotifications.push("Transaction cleared by network ledger routing block.");  
+                        SystemUINavigation.switchViewport("dashboard");  
+                    },  
+                    onClose: function() {  
+                        SystemUXNotifications.push("Transaction execution cycle sequence aborted by client.");  
+                    }  
+                });  
+                handler.openIframe();  
+            }  
         };
+                                                       const SystemUINavigation = {  
+            switchViewport(target) {  
+                document.querySelectorAll(".application-viewport").forEach(el => el.classList.add("hidden"));  
+                document.getElementById(`view-${target}`).classList.remove("hidden");  
+                document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));  
+                document.querySelector(`[data-nav-target="${target}"]`).classList.add("active");  
+                state.currentViewport = target;  
 
-        function saveStateToStorage() {
-            localStorage.setItem("dh_products", JSON.stringify(state.products));
-            localStorage.setItem("dh_cart", JSON.stringify(state.cart));
-            localStorage.setItem("dh_wishlist", JSON.stringify(state.wishlist));
-            localStorage.setItem("dh_search_history", JSON.stringify(state.history));
-        }
+                if (target === "cart") SystemCartSuite.renderCart();  
+                if (target === "wishlist") SystemCartSuite.renderWishlist();  
+                if (target === "dashboard") SystemCreatorDashboard.render();  
+            },  
+            navigateToDetail(id) {  
+                const item = state.catalog.find(x => x.id === id);  
+                if (!item) return;  
+                document.querySelectorAll(".application-viewport").forEach(el => el.classList.add("hidden"));  
+                const detailView = document.getElementById("view-product-detail");  
+                document.getElementById("productDetailContextInject").innerHTML = `  
+                    <div class="deco-card rounded-2xl p-5 space-y-4">  
+                        <div>  
+                            <span class="font-mono text-[9px] tracking-widest text-[#C5A059] uppercase block">${item.category} Module</span>  
+                            <h2 class="text-sm font-black text-white uppercase mt-1 tracking-wide leading-tight">${item.title}</h2>  
+                        </div>  
+                        <p class="text-[11px] text-gray-400 font-light leading-relaxed">${item.description}</p>  
+                        <div class="flex items-center gap-4 bg-black/40 border border-white/5 p-3 rounded-xl font-mono text-[9px] text-gray-500">  
+                            <div>Rating: <span class="text-white font-bold">${item.rating} ★</span></div>  
+                            <div>Deliveries: <span class="text-white font-bold">${item.downloads} units</span></div>  
+                        </div>  
+                        <div class="flex items-center justify-between pt-3 border-t border-white/[0.04]">  
+                            <div class="flex flex-col">  
+                                <span class="text-[8px] text-gray-500 uppercase tracking-widest font-bold">Lump Obligation</span>  
+                                <span class="text-base font-mono font-black text-[#C5A059]">$${item.price}.00</span>  
+                            </div>  
+                            <button onclick="SystemCartSuite.addToCart('${item.id}')" class="bg-gradient-to-r from-[#8C7343] to-[#C5A059] text-black font-extrabold text-[10px] uppercase tracking-wider px-5 py-2.5 rounded-xl">Acquire Asset Lease</button>  
+                        </div>  
+                    </div>  
+                `;  
+                detailView.classList.remove("hidden");  
+            },  
+            popSubpageToBrowse() { this.switchViewport("browse"); },  
+            openGlobalSearch() {  
+                const el = document.getElementById("dynamicSearchSuite");  
+                el.classList.toggle("hidden");  
+                if (!el.classList.contains("hidden")) document.getElementById("engineSearchInput").focus();  
+            }  
+        };  
 
-        // Module: Navigation Engine Control Line
-        const SystemUINavigation = {
-            currentViewport: "browse",
-            openGlobalSearch() {
-                const el = document.getElementById("dynamicSearchSuite");
-                el.classList.toggle("hidden");
-                if(!el.classList.contains("hidden")) {
-                    document.getElementById("engineSearchInput").focus();
-                    this.updateHistoryChips();
+        const SystemUXNotifications = {  
+            logs: ["Root security context validated.", "CDN gateway payload maps successfully attached."],  
+            push(msg) {  
+                this.logs.unshift(`[${new Date().toLocaleTimeString()}] ${msg}`);  
+                const indicator = document.getElementById("globalNotificationIndicator");  
+                if (indicator) indicator.classList.remove("hidden");  
+                if (state.currentViewport === "notifications") this.render();  
+            },  
+            renderPanelToggle() {  
+                SystemUINavigation.switchViewport("notifications");  
+                document.getElementById("globalNotificationIndicator").classList.add("hidden");  
+                this.render();  
+            },  
+            render() {  
+                document.getElementById("systemLogInject").innerHTML = this.logs.map(x => `  
+                    <div class="bg-[#12100E] border-l border-[#C5A059] p-2.5 rounded-r-lg font-mono text-[9px] text-gray-400 leading-normal tracking-wide">${x}</div>  
+                `).join('');  
+            }  
+        };  
+
+        const SystemSearchEngine = {  
+            init() {  
+                const el = document.getElementById("engineSearchInput");  
+                if(el) {  
+                    el.addEventListener("input", () => {  
+                        const clear = document.getElementById("clearSearchAction");  
+                        if (el.value.length > 0) clear.classList.remove("hidden");  
+                        else clear.classList.add("hidden");  
+                        this.executeFuzzyMatch(el.value);  
+                    });  
+                }  
+            },  
+            executeFuzzyMatch(query) {  
+                if (!query) { SystemCatalogManager.render(); return; }  
+                const clean = query.toLowerCase();  
+                const grid = document.getElementById("catalogGridInject");  
+                const filtered = state.catalog.filter(x =>   
+                    x.title.toLowerCase().includes(clean) ||   
+                    x.description.toLowerCase().includes(clean) ||   
+                    x.tags.some(t => t.toLowerCase().includes(clean))  
+                );  
+                grid.innerHTML = filtered.map(item => `  
+                    <div class="deco-card rounded-2xl p-4 flex flex-col justify-between min-h-[140px]" onclick="SystemUINavigation.navigateToDetail('${item.id}')">  
+                        <div>  
+                            <h3 class="text-xs font-bold text-slate-100 tracking-wide">${item.title}</h3>  
+                            <p class="text-[10px] text-gray-400 mt-1">${item.description}</p>  
+                        </div>  
+                        <div class="flex items-center justify-between mt-3">  
+                            <span class="font-mono text-sm font-black text-[#C5A059]">$${item.price}.00</span>  
+                        </div>  
+                    </div>  
+                `).join('');  
+            },  
+            clearSearch() {  
+                const el = document.getElementById("engineSearchInput");  
+                if(el) {  
+                    el.value = "";  
+                    document.getElementById("clearSearchAction").classList.add("hidden");  
+                    SystemCatalogManager.render();  
+                }  
+            },  
+            wipeHistory() {}  
+        };  
+
+        const SystemCreatorDashboard = {  
+            render() {  
+                const container = document.getElementById("creatorCatalogInject");  
+                container.innerHTML = state.catalog.map(x => `  
+                    <div class="bg-[#12100E]/40 border border-white/[0.03] rounded-xl p-3 flex justify-between items-center font-mono text-[10px]">  
+                        <div class="truncate flex-1 pr-4">  
+                            <div class="text-gray-200 truncate font-sans font-semibold">${x.title}</div>  
+                            <div class="text-[#C5A059] text-[9px] mt-0.5">$${x.price}.00 • ${x.downloads} cycles</div>  
+                        </div>  
+                        <span class="text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded text-[8px] uppercase tracking-wider">Active</span>  
+                    </div>  
+                `).join('');  
+            },  
+            openPublishingModal() {  
+                SystemUXNotifications.push("Sandbox terminal restricted to system auditor root.");  
+            }  
+        };  
+
+        function saveStateToStorage() {  
+            try { localStorage.setItem("luxury_hub_state_prod", JSON.stringify({ cart: state.cart, wishlist: state.wishlist })); } catch(e) {}  
+        }  
+
+        function loadStateFromStorage() {  
+            try {  
+                const raw = localStorage.getItem("luxury_hub_state_prod");  
+                if (raw) {  
+                    const parsed = JSON.parse(raw);  
+                    if (parsed.cart) state.cart = parsed.cart;  
+                    if (parsed.wishlist) state.wishlist = parsed.wishlist;  
+                }  
+            } catch(e) {}  
+        }  
+
+        document.addEventListener("DOMContentLoaded", () => {  
+            loadStateFromStorage();  
+            SystemCatalogManager.render();  
+            SystemCartSuite.updateCounters();  
+            SystemSearchEngine.init();  
+        });  
+        setTimeout(() => {  
+            if(document.getElementById("catalogGridInject").children.length === 0) {  
+                SystemCatalogManager.render();  
+            }  
+        }, 600);  
+    </script>  
+</body>  
+</html>
+        const SystemCartSuite = {  
+            addToCart(id) {  
+                if (!state.cart.includes(id)) {  
+                    state.cart.push(id);  
+                    SystemUXNotifications.push("Asset queued into localized encryption shell.");  
+                    this.updateCounters();  
+                    saveStateToStorage();  
+                }  
+            },  
+            removeFromCart(id) {  
+                state.cart = state.cart.filter(x => x !== id);  
+                this.updateCounters();  
+                this.renderCart();  
+                saveStateToStorage();  
+            },  
+            toggleWishlist(id) {  
+                if (state.wishlist.includes(id)) {  
+                    state.wishlist = state.wishlist.filter(x => x !== id);  
+                } else {  
+                    state.wishlist.push(id);  
+                    SystemUXNotifications.push("Item persistent tracking bound to workspace profile.");  
+                }  
+                SystemCatalogManager.render();  
+                this.renderWishlist();  
+                saveStateToStorage();  
+            },  
+            updateCounters() {  
+                const badge = document.getElementById("cartCountBadge");  
+                if(badge) {
+                    badge.innerText = state.cart.length;  
+                    if (state.cart.length > 0) badge.classList.remove("hidden");  
+                    else badge.classList.add("hidden");  
                 }
-            },
-            updateHistoryChips() {
-                const holder = document.getElementById("searchHistoryChips");
-                if(!holder) return;
-                holder.innerHTML = state.history.map(h => `
-                    <span onclick="SystemSearchEngine.applyChip('${h}')" class="text-[9px] bg-white/5 border border-white/10 px-2 py-0.5 rounded text-gray-300 cursor-pointer hover:border-[#C5A059] transition-colors">${h}</span>
-                `).join("");
-                document.getElementById("searchAutocompleteHUD").classList.toggle("hidden", state.history.length === 0);
-            },
-            switchViewport(targetId) {
-                this.currentViewport = targetId;
-                document.querySelectorAll(".application-viewport").forEach(el => el.classList.add("hidden"));
-                document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));
-                
-                const targetView = document.getElementById(`view-${targetId}`);
-                if (targetView) targetView.classList.remove("hidden");
-                
-                const targetNav = document.getElementById(`navBtn-${targetId}`);
-                if (targetNav) targetNav.classList.add("active");
+            },  
+            renderCart() {  
+                const container = document.getElementById("cartItemsInject");  
+                const summaryBlock = document.getElementById("cartLedgerSummaryBlock");  
+                if (!container || !summaryBlock) return;
+                if (state.cart.length === 0) {  
+                    container.innerHTML = `<div class="text-center py-8 text-gray-600 text-[10px] tracking-wider uppercase font-medium">Cart Workspace Empty</div>`;  
+                    summaryBlock.classList.add("hidden");  
+                    return;  
+                }  
+                summaryBlock.classList.remove("hidden");  
+                const items = state.cart.map(id => state.catalog.find(x => x.id === id)).filter(Boolean);  
+                container.innerHTML = items.map(x => `  
+                    <div class="bg-[#12100E] border border-white/[0.03] p-3 rounded-xl flex justify-between items-center">  
+                        <div>  
+                            <h4 class="text-xs font-bold text-gray-200">${x.title}</h4>  
+                            <span class="font-mono text-[9px] text-[#C5A059]">$${x.price}.00</span>  
+                        </div>  
+                        <button onclick="SystemCartSuite.removeFromCart('${x.id}')" class="text-gray-500 hover:text-rose-400 text-xs p-1"><i class="fa-solid fa-trash-can"></i></button>  
+                    </div>  
+                `).join('');  
+                this.calculateLedger(items);  
+            },  
+            calculateLedger(items) {  
+                const subtotal = items.reduce((acc, x) => acc + x.price, 0);  
+                const discount = state.promoApplied ? subtotal * 0.25 : 0;  
+                const total = subtotal - discount;  
+                document.getElementById("ledgerSubtotal").innerText = `$${subtotal.toFixed(2)}`;  
+                document.getElementById("ledgerDiscount").innerText = `-$${discount.toFixed(2)}`;  
+                document.getElementById("ledgerTotal").innerText = `$${total.toFixed(2)}`;  
+            },  
+            applyPromoCouponCode() {  
+                const input = document.getElementById("couponCodeFormInput").value.trim().toUpperCase();  
+                if (input === "GOLD25") {  
+                    state.promoApplied = true;  
+                    SystemUXNotifications.push("Promotional matrix validated. 25% allocation deduction active.");  
+                    this.renderCart();  
+                } else {  
+                    SystemUXNotifications.push("Invalid ledger promotion token signature.");  
+                }  
+            },  
+            renderWishlist() {  
+                const container = document.getElementById("wishlistItemsInject");  
+                if (!container) return;
+                if (state.wishlist.length === 0) {  
+                    container.innerHTML = `<div class="text-center py-8 text-gray-600 text-[10px] tracking-wider uppercase font-medium">No Tracked Registry Items</div>`;  
+                    return;  
+                }  
+                const items = state.wishlist.map(id => state.catalog.find(x => x.id === id)).filter(Boolean);  
+                container.innerHTML = items.map(x => `  
+                    <div class="bg-[#12100E] border border-white/[0.03] p-3 rounded-xl flex justify-between items-center">  
+                        <div>  
+                            <h4 class="text-xs font-bold text-gray-200">${x.title}</h4>  
+                            <span class="font-mono text-[9px] text-[#C5A059]">$${x.price}.00</span>  
+                        </div>  
+                        <div class="flex items-center gap-2">  
+                            <button onclick="SystemCartSuite.addToCart('${x.id}')" class="text-[#C5A059] text-xs p-1"><i class="fa-solid fa-cart-plus"></i></button>  
+                            <button onclick="SystemCartSuite.toggleWishlist('${x.id}')" class="text-rose-500 text-xs p-1"><i class="fa-solid fa-heart"></i></button>  
+                        </div>  
+                    </div>  
+                `).join('');  
+            }  
+        };  
 
-                document.getElementById("dynamicSearchSuite").classList.add("hidden");
+        const SystemPaymentGateway = {  
+            initializePaystackSession(e) {  
+                e.preventDefault();  
+                const email = document.getElementById("checkoutReceiptEmail").value;  
+                const totalAmount = parseFloat(document.getElementById("ledgerTotal").innerText.replace('$', ''));  
 
-                if(targetId === 'browse') SystemCatalogManager.renderGrid();
-                if(targetId === 'wishlist') this.renderWishlist();
-                if(targetId === 'cart') SystemCartSuite.renderCart();
-                if(targetId === 'dashboard') SystemCreatorDashboard.renderConsole();
-                if(targetId === 'notifications') SystemUXNotifications.renderStack();
-            },
-            viewDetails(productId) {
-                const product = state.products.find(p => p.id === productId);
-                if (!product) return;
-                
-                document.querySelectorAll(".application-viewport").forEach(el => el.classList.add("hidden"));
-                const detailView = document.getElementById("view-product-detail");
-                detailView.classList.remove("hidden");
+                if (!email.includes("@") || totalAmount <= 0) {  
+                    SystemUXNotifications.push("Provide a destination email registry format.");  
+                    return;  
+                }  
 
-                const targetInject = document.getElementById("productDetailContextInject");
-                const inCart = state.cart.includes(product.id);
-                const inWish = state.wishlist.includes(product.id);
+                if (typeof PaystackPop === 'undefined') {  
+                    SystemUXNotifications.push("Payment gateway is initializing. Please try again in a second.");  
+                    return;  
+                }  
 
-                targetInject.innerHTML = `
-                    <div class="deco-card rounded-2xl overflow-hidden p-4 space-y-4">
-                        <div class="relative w-full h-44 rounded-xl overflow-hidden bg-black/40">
-                            <img src="${product.image}" class="w-full h-full object-cover">
-                            ${product.badge ? `<span class="absolute top-2 left-2 bg-[#C5A059] text-black text-[7px] font-black tracking-widest uppercase px-2 py-0.5 rounded-md shadow-md">${product.badge}</span>` : ''}
-                        </div>
-                        <div>
-                            <div class="flex justify-between items-start">
-                                <h2 class="luxury-title text-sm text-white font-bold uppercase">${product.title}</h2>
-                                <span class="font-mono text-[#C5A059] font-bold text-sm">$${product.price.toFixed(2)}</span>
-                            </div>
-                            <span class="text-[9px] text-[#8C7343] font-mono tracking-wider uppercase block mt-0.5">Author Node: ${product.author}</span>
-                            <p class="text-[11px] text-gray-400 mt-2.5 leading-relaxed font-light">${product.description}</p>
-                        </div>
-                        <div class="flex items-center gap-1.5 py-1">
-                            ${product.tags.map(t => `<span class="text-[8px] tracking-wider border border-white/[0.06] text-gray-500 font-bold uppercase px-2 py-0.5 rounded-md bg-white/[0.01]">${t}</span>`).join("")}
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 pt-2">
-                            <button onclick="SystemCartSuite.toggleCart('${product.id}')" class="w-full py-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border ${inCart ? 'border-red-900 bg-red-950/20 text-red-400' : 'bg-[#C5A059] border-[#C5A059] text-black active:scale-[0.97]' }">
-                                <i class="fa-solid fa-vault mr-1"></i> ${inCart ? 'Drop from Cart' : 'Acquire License'}
-                            </button>
-                            <button onclick="SystemCartSuite.toggleWishlist('${product.id}')" class="w-full bg-white/5 border border-white/10 text-gray-300 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider active:bg-white/10 transition-all">
-                                <i class="${inWish ? 'fa-solid text-red-500' : 'fa-regular'} fa-heart mr-1"></i> ${inWish ? 'Wishlisted' : 'Add to Registry'}
-                            </button>
-                        </div>
-                    </div>
-                `;
-            },
-            popSubpageToBrowse() {
-                this.switchViewport("browse");
-            },
-            renderWishlist() {
-                const target = document.getElementById("wishlistItemsInject");
-                const items = state.products.filter(p => state.wishlist.includes(p.id));
-                if(items.length === 0) {
-                    target.innerHTML = `<div class="text-center py-12 text-gray-600 text-[10px] font-mono uppercase tracking-widest">Wishlist Vault Empty</div>`;
-                    return;
-                }
-                target.innerHTML = items.map(p => `
-                    <div class="deco-card p-3 rounded-xl flex items-center gap-3">
-                        <img src="${p.image}" class="w-10 h-10 object-cover rounded-md bg-white/5">
-                        <div class="flex-1 min-w-0">
-                            <h4 class="text-xs font-bold text-white tracking-wide truncate uppercase">${p.title}</h4>
-                            <span class="font-mono text-[#C5A059] text-[10px]">$${p.price.toFixed(2)}</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="SystemCartSuite.moveWishlistToCart('${p.id}')" class="text-[9px] font-bold bg-[#C5A059] text-black px-2 py-1 rounded uppercase tracking-wider">Move</button>
-                            <button onclick="SystemCartSuite.toggleWishlist('${p.id}')" class="text-gray-500 hover:text-red-400 px-1"><i class="fa-solid fa-trash-can text-xs"></i></button>
-                        </div>
-                    </div>
-                `).join("");
-            }
+                let handler = PaystackPop.setup({  
+                    key: 'pk_live_7d914000404cc8b8c998d258948378c4ac5a6ecd',  
+                    email: email,  
+                    amount: Math.round(totalAmount * 100),  
+                    currency: 'USD',  
+                    metadata: { cart_items: state.cart },  
+                    callback: function(response) {  
+                        state.cart = [];  
+                        saveStateToStorage();  
+                        SystemCartSuite.updateCounters();  
+                        SystemUXNotifications.push("Transaction cleared by network ledger routing block.");  
+                        SystemUINavigation.switchViewport("dashboard");  
+                    },  
+                    onClose: function() {  
+                        SystemUXNotifications.push("Transaction execution cycle sequence aborted by client.");  
+                    }  
+                });  
+                handler.openIframe();  
+            }  
         };
+                            const SystemUINavigation = {  
+            switchViewport(target) {  
+                document.querySelectorAll(".application-viewport").forEach(el => el.classList.add("hidden"));  
+                const view = document.getElementById(`view-${target}`);  
+                if(view) view.classList.remove("hidden");  
+                document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));  
+                const nav = document.querySelector(`[data-nav-target="${target}"]`);  
+                if(nav) nav.classList.add("active");  
+                state.currentViewport = target;  
 
-        // Module: Catalog & Collection Engine Pipeline
-        const SystemCatalogManager = {
-            renderGrid() {
-                const grid = document.getElementById("catalogGridInject");
-                let list = state.products;
-
-                if (state.activeCategory !== "ALL") {
-                    list = list.filter(p => p.category === state.activeCategory);
+                if (target === "cart") SystemCartSuite.renderCart();  
+                if (target === "wishlist") SystemCartSuite.renderWishlist();  
+                if (target === "dashboard") SystemCreatorDashboard.render();  
+            },  
+            navigateToDetail(id) {  
+                const item = state.catalog.find(x => x.id === id);  
+                if (!item) return;  
+                document.querySelectorAll(".application-viewport").forEach(el => el.classList.add("hidden"));  
+                const detailView = document.getElementById("view-product-detail");  
+                const inject = document.getElementById("productDetailContextInject");
+                if(inject && detailView) {
+                    inject.innerHTML = `  
+                        <div class="deco-card rounded-2xl p-5 space-y-4">  
+                            <div>  
+                                <span class="font-mono text-[9px] tracking-widest text-[#C5A059] uppercase block">${item.category} Module</span>  
+                                <h2 class="text-sm font-black text-white uppercase mt-1 tracking-wide leading-tight">${item.title}</h2>  
+                            </div>  
+                            <p class="text-[11px] text-gray-400 font-light leading-relaxed">${item.description}</p>  
+                            <div class="flex items-center gap-4 bg-black/40 border border-white/5 p-3 rounded-xl font-mono text-[9px] text-gray-500">  
+                                <div>Rating: <span class="text-white font-bold">${item.rating} ★</span></div>  
+                                <div>Deliveries: <span class="text-white font-bold">${item.downloads} units</span></div>  
+                            </div>  
+                            <div class="flex items-center justify-between pt-3 border-t border-white/[0.04]">  
+                                <div class="flex flex-col">  
+                                    <span class="text-[8px] text-gray-500 uppercase tracking-widest font-bold">Lump Obligation</span>  
+                                    <span class="text-base font-mono font-black text-[#C5A059]">$${item.price}.00</span>  
+                                </div>  
+                                <button onclick="SystemCartSuite.addToCart('${item.id}')" class="bg-gradient-to-r from-[#8C7343] to-[#C5A059] text-black font-extrabold text-[10px] uppercase tracking-wider px-5 py-2.5 rounded-xl">Acquire Asset Lease</button>  
+                            </div>  
+                        </div>  
+                    `;  
+                    detailView.classList.remove("hidden");  
                 }
-
-                if (state.searchQuery.trim() !== "") {
-                    const q = state.searchQuery.toLowerCase();
-                    list = list.filter(p => p.title.toLowerCase().includes(q) || p.description.toLowerCase().includes(q) || p.tags.some(t => t.toLowerCase().includes(q)));
+            },  
+            popSubpageToBrowse() { this.switchViewport("browse"); },  
+            openGlobalSearch() {  
+                const el = document.getElementById("dynamicSearchSuite");  
+                if(el) {
+                    el.classList.toggle("hidden");  
+                    if (!el.classList.contains("hidden")) document.getElementById("engineSearchInput").focus();  
                 }
+            }  
+        };  
 
-                if (state.sortBy === "price-low") list.sort((a,b) => a.price - b.price);
-                else if (state.sortBy === "price-high") list.sort((a,b) => b.price - a.price);
-                else if (state.sortBy === "rating") list.sort((a,b) => b.rating - a.rating);
-
-                document.getElementById("catalogCountFeedback").innerText = `${list.length} Records Visualized`;
-
-                if(list.length === 0) {
-                    grid.innerHTML = `<div class="text-center py-12 text-gray-600 text-[10px] font-mono uppercase tracking-widest">No matching assets found</div>`;
-                    return;
+        const SystemUXNotifications = {  
+            logs: ["Root security context validated.", "CDN gateway payload maps successfully attached."],  
+            push(msg) {  
+                this.logs.unshift(`[${new Date().toLocaleTimeString()}] ${msg}`);  
+                const indicator = document.getElementById("globalNotificationIndicator");  
+                if (indicator) indicator.classList.remove("hidden");  
+                if (state.currentViewport === "notifications") this.render();  
+            },  
+            renderPanelToggle() {  
+                SystemUINavigation.switchViewport("notifications");  
+                const indicator = document.getElementById("globalNotificationIndicator");  
+                if(indicator) indicator.classList.add("hidden");  
+                this.render();  
+            },  
+            render() {  
+                const inject = document.getElementById("systemLogInject");
+                if(inject) {
+                    inject.innerHTML = this.logs.map(x => `  
+                        <div class="bg-[#12100E] border-l border-[#C5A059] p-2.5 rounded-r-lg font-mono text-[9px] text-gray-400 leading-normal tracking-wide">${x}</div>  
+                    `).join('');  
                 }
+            }  
+        };  
 
-                grid.innerHTML = list.map(product => {
-                    const inCart = state.cart.includes(product.id);
-                    return `
-                        <div class="deco-card rounded-xl p-3.5 space-y-3 cursor-pointer" onclick="SystemUINavigation.viewDetails('${product.id}')">
-                            <div class="relative w-full h-32 rounded-lg overflow-hidden bg-black/50">
-                                <img src="${product.image}" class="w-full h-full object-cover">
-                                ${product.badge ? `<span class="absolute top-2 left-2 bg-[#C5A059] text-black text-[6px] font-black tracking-widest uppercase px-1.5 py-0.5 rounded">${product.badge}</span>` : ''}
-                                <div class="absolute bottom-2 right-2 bg-black/70 border border-white/10 px-1.5 py-0.5 rounded text-[8px] text-amber-400 font-mono flex items-center gap-0.5">
-                                    <i class="fa-solid fa-star text-[7px]"></i> ${product.rating.toFixed(1)}
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between items-start gap-2">
-                                    <h3 class="text-xs font-bold uppercase text-gray-200 tracking-wide truncate flex-1">${this.highlightMatch(product.title)}</h3>
-                                    <span class="font-mono text-[#C5A059] text-xs font-bold shrink-0">$${product.price.toFixed(2)}</span>
-                                </div>
-                                <p class="text-[10px] text-gray-500 truncate mt-0.5 leading-relaxed font-light">${product.description}</p>
-                            </div>
-                            <div class="flex items-center justify-between pt-1" onclick="event.stopPropagation()">
-                                <div class="flex gap-1">
-                                    ${product.tags.slice(0,2).map(t => `<span class="text-[7px] border border-white/5 text-gray-500 px-1.5 py-0.5 rounded uppercase font-bold">${t}</span>`).join("")}
-                                </div>
-                                <button onclick="SystemCartSuite.toggleCart('${product.id}')" class="text-[9px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded transition-colors border ${inCart ? 'border-red-950 bg-red-950/40 text-red-400' : 'bg-white/5 border-white/10 text-[#C5A059] hover:border-[#C5A059]' }">
-                                    ${inCart ? 'Drop' : 'Acquire'}
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }).join("");
-            },
-            highlightMatch(text) {
-                if (!state.searchQuery.trim()) return text;
-                const regex = new RegExp(`(${state.searchQuery})`, "gi");
-                return text.replace(regex, `<span class="search-highlight">$1</span>`);
-            },
-            filterCategory(cat) {
-                state.activeCategory = cat;
-                document.querySelectorAll(".category-pill").forEach(el => {
-                    if (el.getAttribute("data-category-pill") === cat) {
-                        el.className = "category-pill shrink-0 px-4 py-2 rounded-lg text-[10px] font-bold tracking-widest uppercase border bg-[#C5A059] border-[#C5A059] text-black";
-                    } else {
-                        el.className = "category-pill shrink-0 px-4 py-2 rounded-lg text-[10px] font-bold tracking-widest uppercase border border-white/5 bg-white/5 text-gray-400";
-                    }
-                });
-                this.renderGrid();
-            },
-            handleSortReorder() {
-                state.sortBy = document.getElementById("sortConfigSelector").value;
-                this.renderGrid();
-            }
-        };
+        const SystemSearchEngine = {  
+            init() {  
+                const el = document.getElementById("engineSearchInput");  
+                if(el) {  
+                    el.addEventListener("input", () => {  
+                        const clear = document.getElementById("clearSearchAction");  
+                        if (el.value.length > 0) { if(clear) clear.classList.remove("hidden"); }  
+                        else { if(clear) clear.classList.add("hidden"); }  
+                        this.executeFuzzyMatch(el.value);  
+                    });  
+                }  
+            },  
+            executeFuzzyMatch(query) {  
+                if (!query) { SystemCatalogManager.render(); return; }  
+                const clean = query.toLowerCase();  
+                const grid = document.getElementById("catalogGridInject");  
+                if(!grid) return;
+                const filtered = state.catalog.filter(x =>   
+                    x.title.toLowerCase().includes(clean) ||   
+                    x.description.toLowerCase().includes(clean) ||   
+                    x.tags.some(t => t.toLowerCase().includes(clean))  
+                );  
+                grid.innerHTML = filtered.map(item => `  
+                    <div class="deco-card rounded-2xl p-4 flex flex-col justify-between min-h-[140px]" onclick="SystemUINavigation.navigateToDetail('${item.id}')">  
+                        <div>  
+                            <h3 class="text-xs font-bold text-slate-100 tracking-wide">${item.title}</h3>  
+                            <p class="text-[10px] text-gray-400 mt-1">${item.description}</p>  
+                        </div>  
+                        <div class="flex items-center justify-between mt-3">  
+                            <span class="font-mono text-sm font-black text-[#C5A059]">$${item.price}.00</span>  
+                        </div>  
+                    </div>  
+                `).join('');  
+            },  
+            clearSearch() {  
+                const el = document.getElementById("engineSearchInput");  
+                if(el) {  
+                    el.value = "";  
+                    const clear = document.getElementById("clearSearchAction");  
+                    if(clear) clear.classList.add("hidden");  
+                    SystemCatalogManager.render();  
+                }  
+            },  
+            wipeHistory() {}  
+        };  
 
-        // Module: Search Subsystem Intelligence Core
-        const SystemSearchEngine = {
-            init() {
-                const input = document.getElementById("engineSearchInput");
-                if(!input) return;
-                input.addEventListener("input", (e) => {
-                    state.searchQuery = e.target.value;
-                    document.getElementById("clearSearchAction").classList.toggle("hidden", state.searchQuery === "");
-                    SystemCatalogManager.renderGrid();
-                });
-            },
-            clearSearch() {
-                const input = document.getElementById("engineSearchInput");
-                input.value = "";
-                state.searchQuery = "";
-                document.getElementById("clearSearchAction").classList.add("hidden");
-                SystemCatalogManager.renderGrid();
-            },
-            applyChip(val) {
-                const input = document.getElementById("engineSearchInput");
-                input.value = val;
-                state.searchQuery = val;
-                document.getElementById("clearSearchAction").classList.remove("hidden");
-                SystemCatalogManager.renderGrid();
-            },
-            wipeHistory() {
-                state.history = [];
-                saveStateToStorage();
-                SystemUINavigation.updateHistoryChips();
-            }
-        };
+        const SystemCreatorDashboard = {  
+            render() {  
+                const container = document.getElementById("creatorCatalogInject");  
+                if(!container) return;
+                container.innerHTML = state.catalog.map(x => `  
+                    <div class="bg-[#12100E]/40 border border-white/[0.03] rounded-xl p-3 flex justify-between items-center font-mono text-[10px]">  
+                        <div class="truncate flex-1 pr-4">  
+                            <div class="text-gray-200 truncate font-sans font-semibold">${x.title}</div>  
+                            <div class="text-[#C5A059] text-[9px] mt-0.5">$${x.price}.00 • ${x.downloads} cycles</div>  
+                        </div>  
+                        <span class="text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded text-[8px] uppercase tracking-wider">Active</span>  
+                    </div>  
+                `).join('');  
+            },  
+            openPublishingModal() {  
+                SystemUXNotifications.push("Sandbox terminal restricted to system auditor root.");  
+            }  
+        };  
 
-        // Module: Complete Dynamic Commerce Cart Matrix Architecture
-        const SystemCartSuite = {
-            toggleCart(id) {
-                const index = state.cart.indexOf(id);
-                if (index > -1) {
-                    state.cart.splice(index, 1);
-                    SystemUXNotifications.push("Asset extracted from cart matrix.");
-                } else {
-                    state.cart.push(id);
-                    SystemUXNotifications.push("Premium asset staged inside secure cart.");
-                }
-                saveStateToStorage();
-                this.updateCounters();
-                if(SystemUINavigation.currentViewport === 'cart') this.renderCart();
-                else if(SystemUINavigation.currentViewport === 'browse') SystemCatalogManager.renderGrid();
-            },
-            toggleWishlist(id) {
-                const index = state.wishlist.indexOf(id);
-                if (index > -1) {
-                    state.wishlist.splice(index, 1);
-                } else {
-                    state.wishlist.push(id);
-                }
-                saveStateToStorage();
-                if(SystemUINavigation.currentViewport === 'wishlist') SystemUINavigation.renderWishlist();
-            },
-            moveWishlistToCart(id) {
-                this.toggleWishlist(id);
-                if (!state.cart.includes(id)) state.cart.push(id);
-                saveStateToStorage();
-                this.updateCounters();
-                SystemUINavigation.renderWishlist();
-            },
-            updateCounters() {
-                const indicator = document.getElementById("navCartCountIndicator");
-                indicator.innerText = state.cart.length;
-                indicator.classList.toggle("hidden", state.cart.length === 0);
-            },
-            renderCart() {
-                const target = document.getElementById("cartItemsInject");
-                const ledger = document.getElementById("cartLedgerSummaryBlock");
-                const items = state.products.filter(p => state.cart.includes(p.id));
+        function saveStateToStorage() {  
+            try { localStorage.setItem("luxury_hub_state_prod", JSON.stringify({ cart: state.cart, wishlist: state.wishlist })); } catch(e) {}  
+        }  
 
-                if(items.length === 0) {
-                    target.innerHTML = `<div class="text-center py-12 text-gray-600 text-[10px] font-mono uppercase tracking-widest">Transactional Matrix Empty</div>`;
-                    ledger.classList.add("hidden");
-                    return;
-                }
+        function loadStateFromStorage() {  
+            try {  
+                const raw = localStorage.getItem("luxury_hub_state_prod");  
+                if (raw) {  
+                    const parsed = JSON.parse(raw);  
+                    if (parsed.cart) state.cart = parsed.cart;  
+                    if (parsed.wishlist) state.wishlist = parsed.wishlist;  
+                }  
+            } catch(e) {}  
+        }  
 
-                ledger.classList.remove("hidden");
-                target.innerHTML = items.map(p => `
-                    <div class="deco-card p-3 rounded-xl flex items-center gap-3">
-                        <img src="${p.image}" class="w-10 h-10 object-cover rounded-md bg-white/5">
-                        <div class="flex-1 min-w-0">
-                            <h4 class="text-xs font-bold text-white tracking-wide truncate uppercase">${p.title}</h4>
-                            <span class="font-mono text-[#C5A059] text-[10px]">$${p.price.toFixed(2)}</span>
-                        </div>
-                        <button onclick="SystemCartSuite.toggleCart('${p.id}')" class="text-gray-500 hover:text-red-400 px-2"><i class="fa-solid fa-xmark text-xs"></i></button>
-                    </div>
-                `).join("");
-
-                this.calculateLedger(items);
-            },
-            applyPromoCouponCode() {
-                const val = document.getElementById("couponCodeFormInput").value.trim().toUpperCase();
-                if(val === "GOLD25") {
-                    state.promoApplied = true;
-                    SystemUXNotifications.push("Coupon authorization valid: 25% allocation applied.");
-                } else {
-                    SystemUXNotifications.push("Invalid deployment credential token code.");
-                }
-                this.renderCart();
-            },
-            calculateLedger(items) {
-                const subtotal = items.reduce((acc, curr) => acc + curr.price, 0);
-                const discount = state.promoApplied ? (subtotal * 0.25) : 0;
-                const total = subtotal - discount;
-
-                document.getElementById("ledgerSubtotal").innerText = `$${subtotal.toFixed(2)}`;
-                document.getElementById("ledgerDiscount").innerText = `-$${discount.toFixed(2)}`;
-                document.getElementById("ledgerTotal").innerText = `$${total.toFixed(2)}`;
-            }
-        };
-
-        // Module: Secure Tokenized Gateway Module Architecture
-        const SystemPaymentGateway = {
-    initializePaystackSession(e) {
+        document.addEventListener("DOMContentLoaded", () => {  
+            loadStateFromStorage();  
+            SystemCatalogManager.render();  
+            SystemCartSuite.updateCounters();  
+            SystemSearchEngine.init();  
+        });  
+        setTimeout(() => {  
+            const grid = document.getElementById("catalogGridInject");
+            if(grid && grid.children.length === 0) {  
+                SystemCatalogManager.render();  
+            }  
+        }, 600);  
+    </script>  
+</body>  
+                </html>
+                    
         
-        e.preventDefault();
-        const email = document.getElementById("checkoutReceiptEmail").value;
-        const totalAmount = parseFloat(document.getElementById("ledgerTotal").innerText.replace('$', ''));
-
-        if(!email.includes("@") || totalAmount <= 0) {
-            SystemUXNotifications.push("Provide a destination email and valid cart total.");
-            return;
-        }
-        if (typeof PaystackPop === 'undefined') {
-            SystemUXNotifications.push("Payment gateway is initializing. Please try again in a second.");
-            return;
-        }
-        
-        let handler = PaystackPop.setup({
-            key: 'pk_live_7d914000404cc8b8c998d258948378c4ac5a6ecd', 
-            email: email,
-            amount: Math.round(totalAmount * 100), 
-            currency: 'USD', 
-            metadata: {
-                cart_items: state.cart
-            },
-            callback: function(response){
-                state.cart = [];
-                saveStateToStorage();
-                SystemCartSuite.updateCounters();
-                SystemUXNotifications.push("Transaction Authorized! Reference: " + response.reference);
-                SystemUINavigation.switchViewport("dashboard");
-            },
-            onClose: function(){
-                SystemUXNotifications.push("Transaction panel exited.");
-            }
-        });
-        handler.openIframe();
-         }
- };
