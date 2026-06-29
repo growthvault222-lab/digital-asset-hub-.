@@ -702,7 +702,11 @@
             SystemUXNotifications.push("Provide a destination email and valid cart total.");
             return;
         }
-
+        if (typeof PaystackPop === 'undefined') {
+            SystemUXNotifications.push("Payment gateway is initializing. Please try again in a second.");
+            return;
+        }
+        
         let handler = PaystackPop.setup({
             key: 'pk_live_7d914000404cc8b8c998d258948378c4ac5a6ecd', 
             email: email,
