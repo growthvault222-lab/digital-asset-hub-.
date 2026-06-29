@@ -1,380 +1,194 @@
-                </div>  
-                <div id="systemLogInject" class="space-y-2.5"></div>  
-            </div>  
-        </main>  
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Asset Hub</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+    <style>
+        body { background-color: #0A0806; color: #E2E8F0; font-family: system-ui, -apple-system, sans-serif; }
+        .deco-card { background: linear-gradient(145deg, #161310, #0F0D0B); border: 1px solid rgba(255,255,255,0.04); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .nav-link.active { color: #C5A059; border-bottom: 2px solid #C5A059; }
+        .unactive { color: #64748B; }
+        .category-pill.active { background-color: #C5A059; color: #000; }
+        .category-pill.unactive { background-color: rgba(255,255,255,0.03); color: #94A3B8; border: 1px solid rgba(255,255,255,0.05); }
+    </style>
+</head>
+<body class="pb-24">
 
-        <nav class="w-full bg-black/90 backdrop-blur-lg border-t border-white/[0.04] py-2 px-3 absolute bottom-0 left-0 right-0 z-40 shrink-0">  
-            <div class="flex items-center justify-around">  
-                <button onclick="SystemUINavigation.switchViewport('browse')" data-nav-target="browse" class="nav-link active relative flex flex-col items-center justify-center pt-1 pb-2 w-14 text-center transition-all">  
-                    <i class="fa-solid fa-gem text-xs text-gray-500 mb-1 transition-transform"></i>  
-                    <span class="text-[8px] tracking-wider uppercase text-gray-500 transition-colors">Catalog</span>  
-                </button>  
-                <button onclick="SystemUINavigation.switchViewport('wishlist')" data-nav-target="wishlist" class="nav-link relative flex flex-col items-center justify-center pt-1 pb-2 w-14 text-center transition-all">  
-                    <i class="fa-solid fa-heart-crack text-xs text-gray-500 mb-1 transition-transform"></i>  
-                    <span class="text-[8px] tracking-wider uppercase text-gray-500 transition-colors">Favs</span>  
-                </button>  
-                <button onclick="SystemUINavigation.switchViewport('cart')" data-nav-target="cart" class="nav-link relative flex flex-col items-center justify-center pt-1 pb-2 w-14 text-center transition-all">  
-                    <i class="fa-solid fa-vault text-xs text-gray-500 mb-1 transition-transform"></i>  
-                    <span class="text-[8px] tracking-wider uppercase text-gray-500 transition-colors">Cart</span>  
-                    <span id="cartCountBadge" class="absolute top-0 right-1 bg-[#C5A059] text-black text-[7px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center hidden scale-90">0</span>  
-                </button>  
-                <button onclick="SystemUINavigation.switchViewport('dashboard')" data-nav-target="dashboard" class="nav-link relative flex flex-col items-center justify-center pt-1 pb-2 w-14 text-center transition-all">  
-                    <i class="fa-solid fa-chart-pie text-xs text-gray-500 mb-1 transition-transform"></i>  
-                    <span class="text-[8px] tracking-wider uppercase text-gray-500 transition-colors">Studio</span>  
-                </button>  
-            </div>  
-        </nav>  
-    </div>  
+    <!-- HEADER NAVIGATION -->
+    <header class="border-b border-white/[0.04] bg-[#0A0806]/80 backdrop-blur sticky top-0 z-40 px-4 py-3 flex justify-between items-center">
+        <div class="flex items-center gap-2" onclick="SystemUINavigation.switchViewport('browse')">
+            <div class="h-7 w-7 rounded-lg bg-gradient-to-br from-[#8C7343] to-[#C5A059] flex items-center justify-center shadow-lg shadow-[#C5A059]/10">
+                <i class="fa-solid fa-cube text-black text-xs font-black"></i>
+            </div>
+            <span class="text-xs font-black tracking-widest uppercase text-white">Vault<span class="text-[#C5A059]">.</span></span>
+        </div>
+        <div class="flex items-center gap-4">
+            <button onclick="SystemUINavigation.openGlobalSearch()" class="text-gray-400 hover:text-white text-xs"><i class="fa-solid fa-magnifying-glass"></i></button>
+            <button onclick="SystemUXNotifications.renderPanelToggle()" class="text-gray-400 hover:text-white text-xs relative">
+                <i class="fa-solid fa-bell"></i>
+                <span id="globalNotificationIndicator" class="absolute -top-1 -right-1 h-1.5 w-1.5 bg-[#C5A059] rounded-full hidden"></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN INTERFACE VIEWPORTS -->
+    <main class="max-w-md mx-auto px-4 pt-4">
+        
+        <!-- SEARCH OVERLAY DROPDOWN -->
+        <div id="dynamicSearchSuite" class="hidden mb-4 bg-[#12100E] border border-white/5 rounded-2xl p-3">
+            <div class="relative flex items-center">
+                <input type="text" id="engineSearchInput" placeholder="SEARCH SECURE LEDGER..." class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-white placeholder-gray-600 focus:outline-none focus:border-[#C5A059]">
+                <button id="clearSearchAction" onclick="SystemSearchEngine.clearSearch()" class="absolute right-3 text-gray-500 text-xs hidden"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+
+        <!-- VIEWPORT: BROWSE CATALOG -->
+        <section id="view-browse" class="application-viewport space-y-5">
+            <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+                <button onclick="SystemCatalogManager.filterCategory('all')" data-category-pill="all" class="category-pill shrink-0 px-4 py-2 rounded-xl text-[10px] uppercase font-bold tracking-wider active">All Matrix</button>
+                <button onclick="SystemCatalogManager.filterCategory('software')" data-category-pill="software" class="category-pill shrink-0 px-4 py-2 rounded-xl text-[10px] uppercase font-bold tracking-wider unactive">Protocols</button>
+                <button onclick="SystemCatalogManager.filterCategory('ai')" data-category-pill="ai" class="category-pill shrink-0 px-4 py-2 rounded-xl text-[10px] uppercase font-bold tracking-wider unactive">AI Nodes</button>
+                <button onclick="SystemCatalogManager.filterCategory('books')" data-category-pill="books" class="category-pill shrink-0 px-4 py-2 rounded-xl text-[10px] uppercase font-bold tracking-wider unactive">Archives</button>
+            </div>
+            <div id="catalogGridInject" class="grid grid-cols-1 gap-4">
+                <!-- Dynamic Catalog Injected Here -->
+            </div>
+        </section>
+
+        <!-- VIEWPORT: PRODUCT DETAIL -->
+        <section id="view-product-detail" class="application-viewport hidden space-y-4">
+            <button onclick="SystemUINavigation.popSubpageToBrowse()" class="text-gray-500 hover:text-white text-[10px] font-mono uppercase tracking-wider flex items-center gap-1"><i class="fa-solid fa-arrow-left"></i> Return to Terminal</button>
+            <div id="productDetailContextInject"></div>
+        </section>
+
+        <!-- VIEWPORT: CART WORKSPACE -->
+        <section id="view-cart" class="application-viewport hidden space-y-4">
+            <h2 class="text-xs font-mono uppercase tracking-widest text-gray-400">Localized Cart Sync</h2>
+            <div id="cartItemsInject" class="space-y-3"></div>
+            <div id="cartLedgerSummaryBlock" class="deco-card rounded-2xl p-4 space-y-3 hidden">
+                <div class="flex justify-between text-xs font-mono text-gray-400"><span>Subtotal Allocation</span><span id="ledgerSubtotal">$0.00</span></div>
+                <div class="flex justify-between text-xs font-mono text-emerald-400"><span>Promo Cut (25%)</span><span id="ledgerDiscount">-$0.00</span></div>
+                <div class="border-t border-white/5 pt-2 flex justify-between text-xs font-mono font-bold text-white"><span>Total Obligation</span><span id="ledgerTotal" class="text-[#C5A059]">$0.00</span></div>
+                <div class="flex gap-2 pt-2">
+                    <input type="text" id="couponCodeFormInput" placeholder="PROMO CODE" class="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-white placeholder-gray-700 w-full focus:outline-none focus:border-[#C5A059]">
+                    <button onclick="SystemCartSuite.applyPromoCouponCode()" class="bg-white/5 border border-white/10 text-white font-mono text-[10px] px-4 rounded-xl uppercase font-bold">Apply</button>
+                </div>
+                <form id="paystackCheckoutForm" onsubmit="SystemPaymentGateway.initializePaystackSession(event)" class="pt-2">
+                    <input type="email" id="checkoutReceiptEmail" placeholder="ENTER RECEIPT EMAIL" required class="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-white placeholder-gray-700 w-full mb-2 focus:outline-none focus:border-[#C5A059]">
+                    <button type="submit" class="w-full bg-gradient-to-r from-[#8C7343] to-[#C5A059] text-black font-black text-xs uppercase tracking-wider py-3 rounded-xl shadow-lg shadow-[#C5A059]/10">Execute Network Payment</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- VIEWPORT: WISHLIST REGISTRY -->
+        <section id="view-wishlist" class="application-viewport hidden space-y-4">
+            <h2 class="text-xs font-mono uppercase tracking-widest text-gray-400">Monitored Registries</h2>
+            <div id="wishlistItemsInject" class="space-y-3"></div>
+        </section>
+
+        <!-- VIEWPORT: NOTIFICATIONS PANEL -->
+        <section id="view-notifications" class="application-viewport hidden space-y-4">
+            <h2 class="text-xs font-mono uppercase tracking-widest text-gray-400">System Log Stream</h2>
+            <div id="systemLogInject" class="space-y-2"></div>
+        </section>
+
+        <!-- VIEWPORT: CREATOR STUDIO -->
+        <section id="view-dashboard" class="application-viewport hidden space-y-4">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xs font-mono uppercase tracking-widest text-gray-400">Creator Studio Node</h2>
+                <button onclick="SystemCreatorDashboard.openPublishingModal()" class="bg-white/5 border border-white/10 text-[#C5A059] font-mono text-[9px] px-3 py-1.5 rounded-lg uppercase font-bold"><i class="fa-solid fa-plus mr-1"></i> Mint Asset</button>
+            </div>
+            <div id="creatorCatalogInject" class="space-y-2"></div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER TASKBAR CONTROLS -->
+    <nav class="fixed bottom-0 left-0 right-0 border-t border-white/[0.04] bg-[#0A0806]/90 backdrop-blur-md z-40 py-2">
+        <div class="max-w-md mx-auto flex justify-around items-center">
+            <button onclick="SystemUINavigation.switchViewport('browse')" data-nav-target="browse" class="nav-link flex flex-col items-center gap-1 text-[10px] uppercase tracking-wider font-bold active">
+                <i class="fa-solid fa-layer-group text-sm"></i><span>Catalog</span>
+            </button>
+            <button onclick="SystemUINavigation.switchViewport('wishlist')" data-nav-target="wishlist" class="nav-link flex flex-col items-center gap-1 text-[10px] uppercase tracking-wider font-bold unactive">
+                <i class="fa-solid fa-heart text-sm"></i><span>Favs</span>
+            </button>
+            <button onclick="SystemUINavigation.switchViewport('cart')" data-nav-target="cart" class="nav-link flex flex-col items-center gap-1 text-[10px] uppercase tracking-wider font-bold unactive relative">
+                <i class="fa-solid fa-cart-shopping text-sm"></i><span>Cart</span>
+                <span id="cartCountBadge" class="absolute -top-1 -right-2 bg-[#C5A059] text-black text-[8px] font-black h-3.5 w-3.5 rounded-full flex items-center justify-center hidden">0</span>
+            </button>
+            <button onclick="SystemUINavigation.switchViewport('dashboard')" data-nav-target="dashboard" class="nav-link flex flex-col items-center gap-1 text-[10px] uppercase tracking-wider font-bold unactive">
+                <i class="fa-solid fa-sliders text-sm"></i><span>Studio</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ENGINE PLATFORM BACKEND -->
     <script>
-                const state = {  
-            catalog: [  
-                { id: "as-1", title: "Autonomous Trading Framework v4", price: 299, rating: 4.9, category: "Software", description: "Ultra low-latency programmatic market maker build script with native webhook structures.", downloads: 142, tags: ["trading", "hft", "bot"] },  
-                { id: "as-2", title: "Luxury Agency Prompt Library", price: 49, rating: 4.8, category: "AI", description: "System level contextual frameworks engineered for Midjourney v6 architectural layouts.", downloads: 820, tags: ["ai", "midjourney", "prompts"] },  
-                { id: "as-3", title: "Decentralized Escrow System Contracts", price: 189, rating: 4.7, category: "Software", description: "Production ready secure multi-sig smart logic suite audited against standard overflow maps.", downloads: 68, tags: ["solidity", "web3", "escrow"] },  
-                { id: "as-4", title: "Sovereign Operator Playbook", price: 29, rating: 4.6, category: "EBook", description: "High security configuration parameters for cross-border digital asset preservation strategies.", downloads: 1104, tags: ["ebook", "privacy", "alpha"] }  
-            ],  
+        const state = {  
+            currentViewport: "browse",  
+            promoApplied: false,  
             cart: [],  
             wishlist: [],  
-            history: [],  
-            promoApplied: false,  
-            currentViewport: "browse"  
+            catalog: [  
+                { id: "asset-01", title: "ALGORITHMIC TRADING CORES", price: 290, category: "software", rating: "4.9", downloads: 1420, description: "Automated high-frequency market-making protocols calibrated for decentralized liquidity pools.", tags: ["Automated", "Financial", "Protocols"] },  
+                { id: "asset-02", title: "QUANTUM NEURAL NETWORKS", price: 420, category: "ai", rating: "5.0", downloads: 890, description: "Advanced predictive deep learning matrices optimized for behavioral data processing layers.", tags: ["AI Neural", "Predictive", "Matrices"] },  
+                { id: "asset-03", title: "CYBERNETIC INTERFACE PACK", price: 180, category: "software", rating: "4.8", downloads: 2310, description: "Sleek, sci-fi inspired premium component design files optimized for immersive spatial computing platforms.", tags: ["Interface", "Spatial", "Design"] },  
+                { id: "asset-04", title: "NEURAL GRAPHICS RENDERER", price: 350, category: "software", rating: "4.9", downloads: 1150, description: "Next-gen ray-tracing shaders built exclusively for web-based real-time 3D environments.", tags: ["Graphics", "Shaders", "3D Web"] },  
+                { id: "asset-05", title: "AUTONOMOUS AGENT FRAMEWORKS", price: 480, category: "ai", rating: "5.0", downloads: 730, description: "Self-optimizing AI workflow nodes engineered to coordinate complex cross-chain infrastructure tasks.", tags: ["AI Agents", "Workflows", "Autonomous"] },  
+                { id: "asset-06", title: "DECENTRALIZED ARCHIVE BLUEPRINTS", price: 150, category: "books", rating: "4.7", downloads: 3400, description: "Comprehensive structural masterclass on building immutable, distributed zero-knowledge file registries.", tags: ["Data", "Security", "Archival"] }  
+            ]  
         };  
 
         const SystemCatalogManager = {  
-            activeCategory: "ALL",  
+            activeCategory: "all",  
             render() {  
                 const grid = document.getElementById("catalogGridInject");  
-                const sortVal = document.getElementById("sortConfigSelector").value;  
-                let list = [...state.catalog];  
-
-                if (this.activeCategory !== "ALL") {  
-                    list = list.filter(x => x.category === this.activeCategory);  
+                if (!grid) return;  
+                let items = state.catalog;  
+                if (this.activeCategory !== "all") {  
+                    items = items.filter(x => x.category === this.activeCategory);  
                 }  
-
-                if (sortVal === "price-low") list.sort((a,b) => a.price - b.price);  
-                else if (sortVal === "price-high") list.sort((a,b) => b.price - a.price);  
-                else if (sortVal === "rating") list.sort((a,b) => b.rating - a.rating);  
-
-                document.getElementById("catalogCountFeedback").innerText = `${list.length} Assets Registered`;  
-                grid.innerHTML = list.map(item => `  
-                    <div class="deco-card rounded-2xl p-4 flex flex-col justify-between min-h-[140px]" onclick="SystemUINavigation.navigateToDetail('${item.id}')">  
-                        <div>  
-                            <div class="flex justify-between items-start gap-3">  
-                                <h3 class="text-xs font-bold text-slate-100 tracking-wide line-clamp-1 flex-1">${item.title}</h3>  
-                                <span class="font-mono text-[10px] text-[#C5A059] bg-[#C5A059]/10 border border-[#C5A059]/20 px-1.5 py-0.5 rounded">${item.category}</span>  
+                grid.innerHTML = items.map(item => {  
+                    const inCart = state.cart.includes(item.id);  
+                    const inWish = state.wishlist.includes(item.id);  
+                    return `  
+                        <div class="deco-card rounded-2xl p-4 flex flex-col justify-between min-h-[140px]">  
+                            <div onclick="SystemUINavigation.navigateToDetail('${item.id}')">  
+                                <div class="flex justify-between items-start">  
+                                    <h3 class="text-xs font-bold text-slate-100 tracking-wide max-w-[80%] truncate">${item.title}</h3>  
+                                    <span class="font-mono text-[10px] text-gray-500">${item.rating} ★</span>  
+                                </div>  
+                                <p class="text-[10px] text-gray-400 mt-1 line-clamp-2">${item.description}</p>  
                             </div>  
-                            <p class="text-[10px] text-gray-400 mt-1.5 line-clamp-2 leading-relaxed font-light">${item.description}</p>  
-                        </div>  
-                        <div class="flex items-center justify-between mt-3 pt-2.5 border-t border-white/[0.03]">  
-                            <span class="font-mono text-sm font-black text-[#C5A059]">$${item.price}.00</span>  
-                            <div class="flex items-center gap-1.5" onclick="event.stopPropagation();">  
-                                <button onclick="SystemCartSuite.toggleWishlist('${item.id}')" class="w-7 h-7 rounded-lg border border-white/5 bg-white/5 text-gray-400 flex items-center justify-center active:text-rose-400 text-[10px]"><i class="${state.wishlist.includes(item.id) ? 'fa-solid fa-heart text-rose-500' : 'fa-regular fa-heart'}"></i></button>  
-                                <button onclick="SystemCartSuite.addToCart('${item.id}')" class="bg-[#C5A059] hover:bg-[#E5C387] text-black font-bold text-[9px] tracking-wider uppercase px-3 py-1.5 rounded-lg flex items-center gap-1"><i class="fa-solid fa-plus text-[8px]"></i> Acquire</button>  
+                            <div class="flex items-center justify-between mt-3">  
+                                <span class="font-mono text-sm font-black text-[#C5A059]">$${item.price}.00</span>  
+                                <div class="flex items-center gap-1.5">  
+                                    <button onclick="SystemCartSuite.toggleWishlist('${item.id}')" class="p-1.5 text-xs ${inWish ? 'text-rose-500' : 'text-gray-500'} hover:text-rose-400"><i class="fa-${inWish ? 'solid' : 'regular'} fa-heart"></i></button>  
+                                    <button onclick="SystemCartSuite.addToCart('${item.id}')" class="p-1.5 text-xs ${inCart ? 'text-emerald-400' : 'text-[#C5A059]'} hover:text-emerald-300"><i class="fa-solid ${inCart ? 'fa-circle-check' : 'fa-cart-plus'}"></i></button>  
+                                </div>  
                             </div>  
                         </div>  
-                    </div>  
-                `).join('');  
+                    `;  
+                }).join('');  
             },  
             filterCategory(cat) {  
                 this.activeCategory = cat;  
                 document.querySelectorAll(".category-pill").forEach(el => {  
                     if (el.getAttribute("data-category-pill") === cat) {  
-                        el.className = "category-pill shrink-0 px-4 py-2 rounded-lg text-[10px] font-bold tracking-widest uppercase border bg-[#C5A059] border-[#C5A059] text-black";  
+                        el.className = "category-pill shrink-0 px-4 py-2 rounded-xl text-[10px] uppercase font-bold tracking-wider active";  
                     } else {  
-                        el.className = "category-pill shrink-0 px-4 py-2 rounded-lg text-[10px] font-bold tracking-widest uppercase border border-white/5 bg-white/5 text-gray-400";  
+                        el.className = "category-pill shrink-0 px-4 py-2 rounded-xl text-[10px] uppercase font-bold tracking-wider unactive";  
                     }  
                 });  
                 this.render();  
             },  
             handleSortReorder() { this.render(); }  
-        };
-                const SystemCartSuite = {  
-            addToCart(id) {  
-                if (!state.cart.includes(id)) {  
-                    state.cart.push(id);  
-                    SystemUXNotifications.push("Asset queued into localized encryption shell.");  
-                    this.updateCounters();  
-                    saveStateToStorage();  
-                }  
-            },  
-            removeFromCart(id) {  
-                state.cart = state.cart.filter(x => x !== id);  
-                this.updateCounters();  
-                this.renderCart();  
-                saveStateToStorage();  
-            },  
-            toggleWishlist(id) {  
-                if (state.wishlist.includes(id)) {  
-                    state.wishlist = state.wishlist.filter(x => x !== id);  
-                } else {  
-                    state.wishlist.push(id);  
-                    SystemUXNotifications.push("Item persistent tracking bound to workspace profile.");  
-                }  
-                SystemCatalogManager.render();  
-                this.renderWishlist();  
-                saveStateToStorage();  
-            },  
-            updateCounters() {  
-                const badge = document.getElementById("cartCountBadge");  
-                badge.innerText = state.cart.length;  
-                if (state.cart.length > 0) badge.classList.remove("hidden");  
-                else badge.classList.add("hidden");  
-            },  
-            renderCart() {  
-                const container = document.getElementById("cartItemsInject");  
-                const summaryBlock = document.getElementById("cartLedgerSummaryBlock");  
-                if (state.cart.length === 0) {  
-                    container.innerHTML = `<div class="text-center py-8 text-gray-600 text-[10px] tracking-wider uppercase font-medium">Cart Workspace Empty</div>`;  
-                    summaryBlock.classList.add("hidden");  
-                    return;  
-                }  
-                summaryBlock.classList.remove("hidden");  
-                const items = state.cart.map(id => state.catalog.find(x => x.id === id)).filter(Boolean);  
-                container.innerHTML = items.map(x => `  
-                    <div class="bg-[#12100E] border border-white/[0.03] p-3 rounded-xl flex justify-between items-center">  
-                        <div>  
-                            <h4 class="text-xs font-bold text-gray-200">${x.title}</h4>  
-                            <span class="font-mono text-[9px] text-[#C5A059]">$${x.price}.00</span>  
-                        </div>  
-                        <button onclick="SystemCartSuite.removeFromCart('${x.id}')" class="text-gray-500 hover:text-rose-400 text-xs p-1"><i class="fa-solid fa-trash-can"></i></button>  
-                    </div>  
-                `).join('');  
-                this.calculateLedger(items);  
-            },  
-            calculateLedger(items) {  
-                const subtotal = items.reduce((acc, x) => acc + x.price, 0);  
-                const discount = state.promoApplied ? subtotal * 0.25 : 0;  
-                const total = subtotal - discount;  
-                document.getElementById("ledgerSubtotal").innerText = `$${subtotal.toFixed(2)}`;  
-                document.getElementById("ledgerDiscount").innerText = `-$${discount.toFixed(2)}`;  
-                document.getElementById("ledgerTotal").innerText = `$${total.toFixed(2)}`;  
-            },  
-            applyPromoCouponCode() {  
-                const input = document.getElementById("couponCodeFormInput").value.trim().toUpperCase();  
-                if (input === "GOLD25") {  
-                    state.promoApplied = true;  
-                    SystemUXNotifications.push("Promotional matrix validated. 25% allocation deduction active.");  
-                    this.renderCart();  
-                } else {  
-                    SystemUXNotifications.push("Invalid ledger promotion token signature.");  
-                }  
-            },  
-            renderWishlist() {  
-                const container = document.getElementById("wishlistItemsInject");  
-                if (state.wishlist.length === 0) {  
-                    container.innerHTML = `<div class="text-center py-8 text-gray-600 text-[10px] tracking-wider uppercase font-medium">No Tracked Registry Items</div>`;  
-                    return;  
-                }  
-                const items = state.wishlist.map(id => state.catalog.find(x => x.id === id)).filter(Boolean);  
-                container.innerHTML = items.map(x => `  
-                    <div class="bg-[#12100E] border border-white/[0.03] p-3 rounded-xl flex justify-between items-center">  
-                        <div>  
-                            <h4 class="text-xs font-bold text-gray-200">${x.title}</h4>  
-                            <span class="font-mono text-[9px] text-[#C5A059]">$${x.price}.00</span>  
-                        </div>  
-                        <div class="flex items-center gap-2">  
-                            <button onclick="SystemCartSuite.addToCart('${x.id}')" class="text-[#C5A059] text-xs p-1"><i class="fa-solid fa-cart-plus"></i></button>  
-                            <button onclick="SystemCartSuite.toggleWishlist('${x.id}')" class="text-rose-500 text-xs p-1"><i class="fa-solid fa-heart"></i></button>  
-                        </div>  
-                    </div>  
-                `).join('');  
-            }  
         };  
 
-        const SystemPaymentGateway = {  
-            initializePaystackSession(e) {  
-                e.preventDefault();  
-                const email = document.getElementById("checkoutReceiptEmail").value;  
-                const totalAmount = parseFloat(document.getElementById("ledgerTotal").innerText.replace('$', ''));  
-
-                if (!email.includes("@") || totalAmount <= 0) {  
-                    SystemUXNotifications.push("Provide a destination email registry format.");  
-                    return;  
-                }  
-
-                if (typeof PaystackPop === 'undefined') {  
-                    SystemUXNotifications.push("Payment gateway is initializing. Please try again in a second.");  
-                    return;  
-                }  
-
-                let handler = PaystackPop.setup({  
-                    key: 'pk_live_7d914000404cc8b8c998d258948378c4ac5a6ecd',  
-                    email: email,  
-                    amount: Math.round(totalAmount * 100),  
-                    currency: 'USD',  
-                    metadata: { cart_items: state.cart },  
-                    callback: function(response) {  
-                        state.cart = [];  
-                        saveStateToStorage();  
-                        SystemCartSuite.updateCounters();  
-                        SystemUXNotifications.push("Transaction cleared by network ledger routing block.");  
-                        SystemUINavigation.switchViewport("dashboard");  
-                    },  
-                    onClose: function() {  
-                        SystemUXNotifications.push("Transaction execution cycle sequence aborted by client.");  
-                    }  
-                });  
-                handler.openIframe();  
-            }  
-        };
-                                                       const SystemUINavigation = {  
-            switchViewport(target) {  
-                document.querySelectorAll(".application-viewport").forEach(el => el.classList.add("hidden"));  
-                document.getElementById(`view-${target}`).classList.remove("hidden");  
-                document.querySelectorAll(".nav-link").forEach(el => el.classList.remove("active"));  
-                document.querySelector(`[data-nav-target="${target}"]`).classList.add("active");  
-                state.currentViewport = target;  
-
-                if (target === "cart") SystemCartSuite.renderCart();  
-                if (target === "wishlist") SystemCartSuite.renderWishlist();  
-                if (target === "dashboard") SystemCreatorDashboard.render();  
-            },  
-            navigateToDetail(id) {  
-                const item = state.catalog.find(x => x.id === id);  
-                if (!item) return;  
-                document.querySelectorAll(".application-viewport").forEach(el => el.classList.add("hidden"));  
-                const detailView = document.getElementById("view-product-detail");  
-                document.getElementById("productDetailContextInject").innerHTML = `  
-                    <div class="deco-card rounded-2xl p-5 space-y-4">  
-                        <div>  
-                            <span class="font-mono text-[9px] tracking-widest text-[#C5A059] uppercase block">${item.category} Module</span>  
-                            <h2 class="text-sm font-black text-white uppercase mt-1 tracking-wide leading-tight">${item.title}</h2>  
-                        </div>  
-                        <p class="text-[11px] text-gray-400 font-light leading-relaxed">${item.description}</p>  
-                        <div class="flex items-center gap-4 bg-black/40 border border-white/5 p-3 rounded-xl font-mono text-[9px] text-gray-500">  
-                            <div>Rating: <span class="text-white font-bold">${item.rating} ★</span></div>  
-                            <div>Deliveries: <span class="text-white font-bold">${item.downloads} units</span></div>  
-                        </div>  
-                        <div class="flex items-center justify-between pt-3 border-t border-white/[0.04]">  
-                            <div class="flex flex-col">  
-                                <span class="text-[8px] text-gray-500 uppercase tracking-widest font-bold">Lump Obligation</span>  
-                                <span class="text-base font-mono font-black text-[#C5A059]">$${item.price}.00</span>  
-                            </div>  
-                            <button onclick="SystemCartSuite.addToCart('${item.id}')" class="bg-gradient-to-r from-[#8C7343] to-[#C5A059] text-black font-extrabold text-[10px] uppercase tracking-wider px-5 py-2.5 rounded-xl">Acquire Asset Lease</button>  
-                        </div>  
-                    </div>  
-                `;  
-                detailView.classList.remove("hidden");  
-            },  
-            popSubpageToBrowse() { this.switchViewport("browse"); },  
-            openGlobalSearch() {  
-                const el = document.getElementById("dynamicSearchSuite");  
-                el.classList.toggle("hidden");  
-                if (!el.classList.contains("hidden")) document.getElementById("engineSearchInput").focus();  
-            }  
-        };  
-
-        const SystemUXNotifications = {  
-            logs: ["Root security context validated.", "CDN gateway payload maps successfully attached."],  
-            push(msg) {  
-                this.logs.unshift(`[${new Date().toLocaleTimeString()}] ${msg}`);  
-                const indicator = document.getElementById("globalNotificationIndicator");  
-                if (indicator) indicator.classList.remove("hidden");  
-                if (state.currentViewport === "notifications") this.render();  
-            },  
-            renderPanelToggle() {  
-                SystemUINavigation.switchViewport("notifications");  
-                document.getElementById("globalNotificationIndicator").classList.add("hidden");  
-                this.render();  
-            },  
-            render() {  
-                document.getElementById("systemLogInject").innerHTML = this.logs.map(x => `  
-                    <div class="bg-[#12100E] border-l border-[#C5A059] p-2.5 rounded-r-lg font-mono text-[9px] text-gray-400 leading-normal tracking-wide">${x}</div>  
-                `).join('');  
-            }  
-        };  
-
-        const SystemSearchEngine = {  
-            init() {  
-                const el = document.getElementById("engineSearchInput");  
-                if(el) {  
-                    el.addEventListener("input", () => {  
-                        const clear = document.getElementById("clearSearchAction");  
-                        if (el.value.length > 0) clear.classList.remove("hidden");  
-                        else clear.classList.add("hidden");  
-                        this.executeFuzzyMatch(el.value);  
-                    });  
-                }  
-            },  
-            executeFuzzyMatch(query) {  
-                if (!query) { SystemCatalogManager.render(); return; }  
-                const clean = query.toLowerCase();  
-                const grid = document.getElementById("catalogGridInject");  
-                const filtered = state.catalog.filter(x =>   
-                    x.title.toLowerCase().includes(clean) ||   
-                    x.description.toLowerCase().includes(clean) ||   
-                    x.tags.some(t => t.toLowerCase().includes(clean))  
-                );  
-                grid.innerHTML = filtered.map(item => `  
-                    <div class="deco-card rounded-2xl p-4 flex flex-col justify-between min-h-[140px]" onclick="SystemUINavigation.navigateToDetail('${item.id}')">  
-                        <div>  
-                            <h3 class="text-xs font-bold text-slate-100 tracking-wide">${item.title}</h3>  
-                            <p class="text-[10px] text-gray-400 mt-1">${item.description}</p>  
-                        </div>  
-                        <div class="flex items-center justify-between mt-3">  
-                            <span class="font-mono text-sm font-black text-[#C5A059]">$${item.price}.00</span>  
-                        </div>  
-                    </div>  
-                `).join('');  
-            },  
-            clearSearch() {  
-                const el = document.getElementById("engineSearchInput");  
-                if(el) {  
-                    el.value = "";  
-                    document.getElementById("clearSearchAction").classList.add("hidden");  
-                    SystemCatalogManager.render();  
-                }  
-            },  
-            wipeHistory() {}  
-        };  
-
-        const SystemCreatorDashboard = {  
-            render() {  
-                const container = document.getElementById("creatorCatalogInject");  
-                container.innerHTML = state.catalog.map(x => `  
-                    <div class="bg-[#12100E]/40 border border-white/[0.03] rounded-xl p-3 flex justify-between items-center font-mono text-[10px]">  
-                        <div class="truncate flex-1 pr-4">  
-                            <div class="text-gray-200 truncate font-sans font-semibold">${x.title}</div>  
-                            <div class="text-[#C5A059] text-[9px] mt-0.5">$${x.price}.00 • ${x.downloads} cycles</div>  
-                        </div>  
-                        <span class="text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded text-[8px] uppercase tracking-wider">Active</span>  
-                    </div>  
-                `).join('');  
-            },  
-            openPublishingModal() {  
-                SystemUXNotifications.push("Sandbox terminal restricted to system auditor root.");  
-            }  
-        };  
-
-        function saveStateToStorage() {  
-            try { localStorage.setItem("luxury_hub_state_prod", JSON.stringify({ cart: state.cart, wishlist: state.wishlist })); } catch(e) {}  
-        }  
-
-        function loadStateFromStorage() {  
-            try {  
-                const raw = localStorage.getItem("luxury_hub_state_prod");  
-                if (raw) {  
-                    const parsed = JSON.parse(raw);  
-                    if (parsed.cart) state.cart = parsed.cart;  
-                    if (parsed.wishlist) state.wishlist = parsed.wishlist;  
-                }  
-            } catch(e) {}  
-        }  
-
-        document.addEventListener("DOMContentLoaded", () => {  
-            loadStateFromStorage();  
-            SystemCatalogManager.render();  
-            SystemCartSuite.updateCounters();  
-            SystemSearchEngine.init();  
-        });  
-        setTimeout(() => {  
-            if(document.getElementById("catalogGridInject").children.length === 0) {  
-                SystemCatalogManager.render();  
-            }  
-        }, 600);  
-    </script>  
-</body>  
-</html>
         const SystemCartSuite = {  
             addToCart(id) {  
                 if (!state.cart.includes(id)) {  
@@ -403,16 +217,16 @@
             },  
             updateCounters() {  
                 const badge = document.getElementById("cartCountBadge");  
-                if(badge) {
+                if(badge) {  
                     badge.innerText = state.cart.length;  
                     if (state.cart.length > 0) badge.classList.remove("hidden");  
                     else badge.classList.add("hidden");  
-                }
+                }  
             },  
             renderCart() {  
                 const container = document.getElementById("cartItemsInject");  
                 const summaryBlock = document.getElementById("cartLedgerSummaryBlock");  
-                if (!container || !summaryBlock) return;
+                if (!container || !summaryBlock) return;  
                 if (state.cart.length === 0) {  
                     container.innerHTML = `<div class="text-center py-8 text-gray-600 text-[10px] tracking-wider uppercase font-medium">Cart Workspace Empty</div>`;  
                     summaryBlock.classList.add("hidden");  
@@ -451,7 +265,7 @@
             },  
             renderWishlist() {  
                 const container = document.getElementById("wishlistItemsInject");  
-                if (!container) return;
+                if (!container) return;  
                 if (state.wishlist.length === 0) {  
                     container.innerHTML = `<div class="text-center py-8 text-gray-600 text-[10px] tracking-wider uppercase font-medium">No Tracked Registry Items</div>`;  
                     return;  
@@ -507,8 +321,9 @@
                 });  
                 handler.openIframe();  
             }  
-        };
-                            const SystemUINavigation = {  
+        };  
+
+        const SystemUINavigation = {  
             switchViewport(target) {  
                 document.querySelectorAll(".application-viewport").forEach(el => el.classList.add("hidden"));  
                 const view = document.getElementById(`view-${target}`);  
@@ -527,8 +342,8 @@
                 if (!item) return;  
                 document.querySelectorAll(".application-viewport").forEach(el => el.classList.add("hidden"));  
                 const detailView = document.getElementById("view-product-detail");  
-                const inject = document.getElementById("productDetailContextInject");
-                if(inject && detailView) {
+                const inject = document.getElementById("productDetailContextInject");  
+                if(inject && detailView) {  
                     inject.innerHTML = `  
                         <div class="deco-card rounded-2xl p-5 space-y-4">  
                             <div>  
@@ -550,15 +365,15 @@
                         </div>  
                     `;  
                     detailView.classList.remove("hidden");  
-                }
+                }  
             },  
             popSubpageToBrowse() { this.switchViewport("browse"); },  
             openGlobalSearch() {  
                 const el = document.getElementById("dynamicSearchSuite");  
-                if(el) {
+                if(el) {  
                     el.classList.toggle("hidden");  
                     if (!el.classList.contains("hidden")) document.getElementById("engineSearchInput").focus();  
-                }
+                }  
             }  
         };  
 
@@ -577,12 +392,12 @@
                 this.render();  
             },  
             render() {  
-                const inject = document.getElementById("systemLogInject");
-                if(inject) {
+                const inject = document.getElementById("systemLogInject");  
+                if(inject) {  
                     inject.innerHTML = this.logs.map(x => `  
                         <div class="bg-[#12100E] border-l border-[#C5A059] p-2.5 rounded-r-lg font-mono text-[9px] text-gray-400 leading-normal tracking-wide">${x}</div>  
                     `).join('');  
-                }
+                }  
             }  
         };  
 
@@ -602,7 +417,7 @@
                 if (!query) { SystemCatalogManager.render(); return; }  
                 const clean = query.toLowerCase();  
                 const grid = document.getElementById("catalogGridInject");  
-                if(!grid) return;
+                if(!grid) return;  
                 const filtered = state.catalog.filter(x =>   
                     x.title.toLowerCase().includes(clean) ||   
                     x.description.toLowerCase().includes(clean) ||   
@@ -635,7 +450,7 @@
         const SystemCreatorDashboard = {  
             render() {  
                 const container = document.getElementById("creatorCatalogInject");  
-                if(!container) return;
+                if(!container) return;  
                 container.innerHTML = state.catalog.map(x => `  
                     <div class="bg-[#12100E]/40 border border-white/[0.03] rounded-xl p-3 flex justify-between items-center font-mono text-[10px]">  
                         <div class="truncate flex-1 pr-4">  
@@ -673,13 +488,11 @@
             SystemSearchEngine.init();  
         });  
         setTimeout(() => {  
-            const grid = document.getElementById("catalogGridInject");
+            const grid = document.getElementById("catalogGridInject");  
             if(grid && grid.children.length === 0) {  
                 SystemCatalogManager.render();  
             }  
         }, 600);  
     </script>  
 </body>  
-                </html>
-                    
-        
+</html>
